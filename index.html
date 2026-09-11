@@ -43,26 +43,58 @@ header{display:flex;align-items:baseline;gap:8px;margin-bottom:26px}
 
 h1{font:700 clamp(24px,4.5vw,32px)/1.2 var(--display);letter-spacing:-.025em;margin:0 0 4px}
 
-.card{background:var(--card);border:1px solid var(--line);border-radius:12px;
-  padding:16px 18px;margin-bottom:12px}
-.card .lbl{font:500 10px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;
-  color:var(--mute);margin-bottom:5px}
-.card .grp+.grp{margin-top:13px}
+.modes{display:inline-flex;gap:3px;padding:3px;background:var(--card);border:1px solid var(--line);
+  border-radius:10px;margin-bottom:20px}
+.mbtn{font:500 13px var(--sans);padding:8px 16px;border-radius:7px;border:none;cursor:pointer;
+  background:transparent;color:var(--mute)}
+.mbtn.on{background:var(--pine);color:#fff}
+
+.list{margin-bottom:14px}
+.row{display:flex;gap:13px;background:var(--card);border:1px solid var(--line);border-radius:12px;
+  padding:14px 16px;margin-bottom:8px;cursor:pointer}
+.row:hover{border-color:var(--pine)}
+.row.open{cursor:default;border-color:var(--pine);box-shadow:0 0 0 3px rgba(44,106,87,.09)}
+.row.open:hover{border-color:var(--pine)}
+.idx{font:500 12px/1.6 var(--mono);color:var(--mute);flex-shrink:0;width:16px}
+.rowbody{flex:1;min-width:0}
+.rq{font:700 15px/1.45 var(--sans)}
+.rr{font:400 14px/1.5 var(--sans);color:var(--mute);margin-top:4px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.rn{font:400 13px/1.5 var(--mono);color:var(--pine);margin-top:4px}
+.pip{width:9px;height:9px;border-radius:50%;background:var(--line);flex-shrink:0;margin-top:6px}
+.pip.good{background:var(--pine)} .pip.bad{background:var(--warn)}
+.addbtn{width:100%;padding:13px;border-style:dashed;color:var(--pine);font-weight:500}
+
+.grp+.grp{margin-top:13px}
+.lbl{display:block;font:500 10px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--mute);margin-bottom:6px}
 .ed{width:100%;border:none;background:transparent;outline:none;color:var(--ink);padding:0;
   font:400 15px/1.5 var(--sans);resize:none;overflow:hidden}
 .ed.q{font-weight:700;font-size:16px}
 .ed.n{font-family:var(--mono);font-size:14px;color:var(--pine)}
 .ed::placeholder{color:#B6BEB9}
 .ed:focus{background:rgba(245,197,24,.10);border-radius:4px;box-shadow:0 0 0 6px rgba(245,197,24,.10)}
+.foot{display:flex;align-items:center;gap:10px;margin-top:15px;padding-top:13px;border-top:1px solid var(--line)}
 
-.foot{display:flex;align-items:center;gap:10px;margin-top:15px;padding-top:13px;
-  border-top:1px solid var(--line)}
-select.out{font:500 12px var(--sans);padding:7px 10px;border-radius:7px;
-  border:1px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer;max-width:100%}
-select.out[data-set="1"]{border-color:var(--pine);color:var(--pine)}
-select.out[data-set="2"]{border-color:var(--warn);color:var(--warn)}
+.rev{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:15px 17px;margin-bottom:8px}
+.rev.done{border-color:rgba(44,106,87,.4)}
+.revhead{display:flex;gap:13px;margin-bottom:13px}
+.opts{display:flex;gap:6px;flex-wrap:wrap}
+.opt{font:500 12px var(--sans);padding:8px 12px;border-radius:999px;cursor:pointer;
+  border:1px solid var(--line);background:var(--paper);color:var(--mute)}
+.opt:hover{border-color:var(--pine);color:var(--ink)}
+.opt.on.good{background:var(--pine);border-color:var(--pine);color:#fff}
+.opt.on.bad{background:var(--warn);border-color:var(--warn);color:#fff}
+.opt.on.grey{background:var(--mute);border-color:var(--mute);color:#fff}
+.opt[disabled]{opacity:.5;cursor:default}
 
-.tally{display:flex;gap:16px;flex-wrap:wrap;margin:0 0 22px;padding:14px 18px;
+.progress{height:4px;background:var(--line);border-radius:2px;margin:12px 0 4px;overflow:hidden}
+.progress-fill{height:100%;background:var(--mark);border-radius:2px;transition:width .3s}
+.box{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:16px}
+.verdict{font:400 15px/1.6 var(--sans);color:var(--ink);background:rgba(245,197,24,.16);
+  border-left:3px solid var(--mark);border-radius:0 8px 8px 0;padding:14px 16px;margin:0}
+
+.tally{display:flex;gap:18px;flex-wrap:wrap;margin:16px 0;padding:14px 18px;
   background:var(--card);border:1px solid var(--line);border-radius:12px}
 .tally b{font:700 19px var(--display);display:block}
 .tally span{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
@@ -72,8 +104,6 @@ select.out[data-set="2"]{border-color:var(--warn);color:var(--warn)}
   background:var(--paper);color:var(--ink);font:400 15px/1.5 var(--sans);outline:none;resize:vertical}
 .fld.mono{font-family:var(--mono);font-size:14px}
 .fld+.lbl{margin-top:14px}
-.lbl{display:block;font:500 10px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;
-  color:var(--mute);margin-bottom:6px}
 
 #bar{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--pine-deep);
   color:#fff;padding:9px 18px;border-radius:999px;font:500 13px var(--sans);display:none;z-index:9}
@@ -100,10 +130,10 @@ const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzZlTFLwSXWGpO_vzMx1R
 
 const URLKEY = 'spine-sheet-url';
 const OUTCOMES = [
-  ['',       'Not reviewed yet'],
-  ['covered','Covered it well'],
-  ['missed', 'Thought of it, but missed it'],
-  ['muddled',"Said it, but couldn't convey it"],
+  ['',        'Not reviewed yet'],
+  ['covered', 'Covered it well'],
+  ['missed',  'Missed it'],
+  ['muddled', "Couldn't convey it"],
   ['nochance','Never came up'],
 ];
 const GOOD = ['covered'], BAD = ['missed','muddled'];
@@ -117,6 +147,10 @@ let rows = [];          // straight from the Sheet, never cached
 let topic = null;
 let busy = false;
 let showSetup = false;
+let mode = 'prep';      // prep | review
+let expanded = null;    // id of the point opened for editing
+let adding = false;
+let draft = {q:'',r:'',n:''};
 
 /* ------------------------------- transport ------------------------------
  * Apps Script's /exec bounces through a redirect that does not carry CORS
@@ -208,9 +242,7 @@ function render(){
   if(!topic) topic = topics[0] || null;
 
   const mine = rows.filter(r=>r.topic===topic);
-  const good = mine.filter(r=>GOOD.includes(r.outcome)).length;
-  const bad  = mine.filter(r=>BAD.includes(r.outcome)).length;
-  const open = mine.filter(r=>!r.outcome).length;
+  if(!mine.length) mode = 'prep';
 
   app.innerHTML = `
     <div class="topics">
@@ -222,49 +254,99 @@ function render(){
 
     ${!topic ? `<div class="muted">No topics yet. Start one, then add your points to it.</div>` : `
       <h1>${esc(topic)}</h1>
-      <p class="hint" style="margin-bottom:22px">${mine.length} point${mine.length===1?'':'s'} in your Sheet</p>
+      <p class="hint" style="margin-bottom:18px">${mine.length} point${mine.length===1?'':'s'}</p>
 
-      ${mine.some(r=>r.outcome) ? `
-        <div class="tally">
-          <div><b>${good}</b><span>covered</span></div>
-          <div><b>${bad}</b><span>missed or muddled</span></div>
-          <div><b>${open}</b><span>not reviewed</span></div>
-        </div>` : ''}
+      ${mine.length ? `<div class="modes">
+        <button class="mbtn ${mode==='prep'?'on':''}" data-m="prep">Prepare</button>
+        <button class="mbtn ${mode==='review'?'on':''}" data-m="review">Review after</button>
+      </div>` : ''}
 
-      ${mine.map(r=>card(r)).join('')}
+      ${mode === 'review' ? reviewView(mine) : prepView(mine)}
+    `}`;
 
-      <div class="newpoint" id="np">
-        <div class="eyebrow pine">Add a point</div>
-        <label class="lbl" style="margin-top:14px" for="nq">Question or topic</label>
-        <textarea class="fld" id="nq" rows="2" placeholder="What will they ask, or what do you need to raise?"></textarea>
-        <label class="lbl" for="nr">My response</label>
-        <textarea class="fld" id="nr" rows="3" placeholder="What you intend to say"></textarea>
-        <label class="lbl" for="nn">Numbers</label>
-        <textarea class="fld mono" id="nn" rows="2" placeholder="Any figures, and where they came from"></textarea>
-        <div style="margin-top:14px">
-          <button class="btn solid" id="savePoint" ${busy?'disabled':''}>${busy?'Saving…':'Save to Sheet'}</button>
-        </div>
-      </div>`}`;
-
-  $$('.chip',app).forEach(c=>c.onclick=()=>{ topic=c.dataset.t; render._pendingTopic=null; render(); });
+  $$('.chip',app).forEach(c=>c.onclick=()=>{ topic=c.dataset.t; expanded=null; adding=false; mode='prep'; render(); });
+  $$('.mbtn',app).forEach(b=>b.onclick=()=>{ mode=b.dataset.m; expanded=null; adding=false; render(); });
   $('#refresh').onclick = refresh;
   $('#newTopic').onclick = () => {
     const name = prompt('Name this topic — the meeting, or the subject you need to speak to:');
     if(!name || !name.trim()) return;
-    topic = name.trim(); render._pendingTopic = topic; render();
+    topic = name.trim(); render._pendingTopic = topic;
+    mode='prep'; adding = true; expanded = null; render();
     setTimeout(()=>$('#nq')?.focus(), 0);
   };
 
   if(!topic) return;
+  if(mode === 'review') return wireReview(app);
+  wirePrep(app);
+}
 
-  $('#savePoint').onclick = () => {
-    const q = $('#nq').value.trim(), r = $('#nr').value.trim(), n = $('#nn').value.trim();
-    if(!q && !r) return bar('Write a question or a response first', true);
-    render._pendingTopic = topic;
-    write({action:'add', topic, question:q, response:r, numbers:n}, 'Saved to your Sheet');
-  };
+/* --------------------------------- prep --------------------------------- */
 
-  /* editing an existing point: only writes if the text actually changed */
+function prepView(mine){
+  return `
+    <div class="list">
+      ${mine.map((r,i)=> r.id===expanded ? openRow(r,i) : shutRow(r,i)).join('')}
+    </div>
+    ${adding ? `
+      <div class="newpoint">
+        <div class="eyebrow pine">Point ${mine.length+1}</div>
+        <label class="lbl" style="margin-top:14px" for="nq">Question or topic</label>
+        <textarea class="fld" id="nq" rows="2" placeholder="What will they ask, or what do you need to raise?">${esc(draft.q)}</textarea>
+        <label class="lbl" for="nr">My response</label>
+        <textarea class="fld" id="nr" rows="3" placeholder="What you intend to say">${esc(draft.r)}</textarea>
+        <label class="lbl" for="nn">Numbers</label>
+        <textarea class="fld mono" id="nn" rows="2" placeholder="Any figures, and where they came from">${esc(draft.n)}</textarea>
+        <div style="margin-top:14px;display:flex;gap:10px">
+          <button class="btn solid" id="savePoint" ${busy?'disabled':''}>${busy?'Saving…':'Save to Sheet'}</button>
+          <button class="btn quiet" id="cancelAdd">Cancel</button>
+        </div>
+      </div>`
+    : `<button class="btn addbtn" id="addBtn">+ Add ${mine.length?'another ':''}point</button>`}`;
+}
+
+function shutRow(r,i){
+  return `<div class="row" data-open="${esc(r.id)}" tabindex="0" role="button">
+    <span class="idx">${i+1}</span>
+    <div class="rowbody">
+      <div class="rq">${esc(r.question) || '<span style="color:#B6BEB9">No question written</span>'}</div>
+      ${r.response ? `<div class="rr">${esc(r.response)}</div>` : ''}
+      ${r.numbers ? `<div class="rn">${esc(r.numbers)}</div>` : ''}
+    </div>
+    ${r.outcome ? `<span class="pip ${GOOD.includes(r.outcome)?'good':BAD.includes(r.outcome)?'bad':''}"
+      title="${esc(label(r.outcome))}"></span>` : ''}
+  </div>`;
+}
+
+function openRow(r,i){
+  const f = (field, cls, val, lbl) => `
+    <div class="grp">
+      <div class="lbl">${lbl}</div>
+      <textarea class="ed ${cls}" data-id="${esc(r.id)}" data-field="${field}"
+        data-was="${esc(val)}" rows="1" placeholder="—">${esc(val)}</textarea>
+    </div>`;
+  return `<div class="row open">
+    <span class="idx">${i+1}</span>
+    <div class="rowbody">
+      ${f('question','q',r.question,'Question or topic')}
+      ${f('response','',r.response,'My response')}
+      ${f('numbers','n',r.numbers,'Numbers')}
+      <div class="foot">
+        <button class="btn quiet" id="closeRow">Done</button>
+        <span class="spacer"></span>
+        <button class="btn quiet" data-del="${esc(r.id)}">Delete</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function wirePrep(app){
+  $$('[data-open]',app).forEach(el=>{
+    const open = () => { expanded = el.dataset.open; adding = false; render(); };
+    el.onclick = open;
+    el.onkeydown = e => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); open(); } };
+  });
+  if($('#closeRow')) $('#closeRow').onclick = () => { expanded = null; render(); };
+
   $$('.ed[data-id]',app).forEach(el=>{
     autosize(el);
     el.oninput = () => autosize(el);
@@ -276,37 +358,96 @@ function render(){
     };
   });
 
-  $$('select.out',app).forEach(s=>s.onchange = () =>
-    write({action:'update', id:s.dataset.id, field:'outcome', value:s.value}, 'Outcome recorded'));
-
   $$('[data-del]',app).forEach(b=>b.onclick = () => {
-    if(confirm('Delete this point from the Sheet?'))
-      write({action:'delete', id:b.dataset.del}, 'Deleted');
+    if(confirm('Delete this point from the Sheet?')){ expanded = null; write({action:'delete', id:b.dataset.del}, 'Deleted'); }
+  });
+
+  if($('#addBtn')) $('#addBtn').onclick = () => {
+    adding = true; expanded = null; render(); setTimeout(()=>$('#nq')?.focus(),0);
+  };
+  if($('#cancelAdd')) $('#cancelAdd').onclick = () => {
+    adding = false; draft = {q:'',r:'',n:''}; render();
+  };
+
+  /* the draft is held in memory so a failed save never loses what you typed */
+  const keep = (id,k) => { const el = $('#'+id); if(el) el.oninput = () => draft[k] = el.value; };
+  keep('nq','q'); keep('nr','r'); keep('nn','n');
+
+  if($('#savePoint')) $('#savePoint').onclick = async () => {
+    const q = $('#nq').value.trim(), r = $('#nr').value.trim(), n = $('#nn').value.trim();
+    if(!q && !r) return bar('Write a question or a response first', true);
+    draft = {q,r,n};
+    render._pendingTopic = topic;
+    const before = rows.length;
+    await write({action:'add', topic, question:q, response:r, numbers:n}, 'Saved — add another if you need');
+    if(rows.length > before){ draft = {q:'',r:'',n:''}; adding = false; render(); }
+  };
+}
+
+/* -------------------------------- review -------------------------------- */
+
+function reviewView(mine){
+  const done = mine.filter(r=>r.outcome).length;
+  const n = o => mine.filter(r=>r.outcome===o).length;
+  const good = n('covered'), missed = n('missed'), muddled = n('muddled'), none = n('nochance');
+  const say = verdict(good, missed, muddled, none, done);
+
+  return `
+    <div class="box">
+      <div class="eyebrow pine">${done} of ${mine.length} reviewed</div>
+      <div class="progress"><div class="progress-fill" style="width:${(done/mine.length)*100}%"></div></div>
+      <p class="hint" style="margin-bottom:0">Go through these straight after the meeting, while you still
+      remember. One tap each.</p>
+    </div>
+
+    <div class="list">
+      ${mine.map((r,i)=>`
+        <div class="rev ${r.outcome?'done':''}">
+          <div class="revhead"><span class="idx">${i+1}</span>
+            <div><div class="rq">${esc(r.question)||'—'}</div>
+            ${r.response?`<div class="rr">${esc(r.response)}</div>`:''}</div></div>
+          <div class="opts">
+            ${OUTCOMES.filter(o=>o[0]).map(([v,l])=>`
+              <button class="opt ${r.outcome===v?'on '+(GOOD.includes(v)?'good':BAD.includes(v)?'bad':'grey'):''}"
+                data-id="${esc(r.id)}" data-v="${v}" ${busy?'disabled':''}>${esc(l)}</button>`).join('')}
+          </div>
+        </div>`).join('')}
+    </div>
+
+    ${done ? `
+      <div class="tally">
+        <div><b>${good}</b><span>covered</span></div>
+        <div><b>${missed}</b><span>missed</span></div>
+        <div><b>${muddled}</b><span>muddled</span></div>
+        <div><b>${none}</b><span>never came up</span></div>
+      </div>
+      ${say ? `<p class="verdict">${esc(say)}</p>` : ''}` : ''}`;
+}
+
+/* What the pattern is telling you. Missed and muddled need opposite fixes. */
+function verdict(good, missed, muddled, none, done){
+  if(done < 2) return '';
+  if(missed >= 2 && missed > muddled)
+    return 'You are losing points you had prepared. That is a length problem, not a memory one — carry fewer points next time, or a shorter form of each.';
+  if(muddled >= 2 && muddled > missed)
+    return 'You are remembering them but not landing them. That is a wording problem — rewrite those responses shorter and say them out loud once before the next meeting.';
+  if(none >= 2 && none >= done/2)
+    return 'Much of this never came up. Worth finding out what the meeting is actually about before preparing for the next one.';
+  if(good === done)
+    return 'Everything covered. Whatever you did preparing this one, do it again.';
+  return '';
+}
+
+function wireReview(app){
+  $$('.opt',app).forEach(b=>b.onclick = () => {
+    const row = rows.find(r=>r.id===b.dataset.id);
+    const value = (row && row.outcome === b.dataset.v) ? '' : b.dataset.v;  // tap again to clear
+    write({action:'update', id:b.dataset.id, field:'outcome', value},
+      value ? 'Recorded' : 'Cleared');
   });
 }
 
-function card(r){
-  const set = GOOD.includes(r.outcome) ? 1 : BAD.includes(r.outcome) ? 2 : 0;
-  const f = (field, cls, val, ph) => `
-    <div class="grp">
-      <div class="lbl">${field==='question'?'Question or topic':field==='response'?'My response':'Numbers'}</div>
-      <textarea class="ed ${cls}" data-id="${esc(r.id)}" data-field="${field}"
-        data-was="${esc(val)}" rows="1" placeholder="${ph}">${esc(val)}</textarea>
-    </div>`;
-  return `<div class="card">
-    ${f('question','q',r.question,'—')}
-    ${f('response','',r.response,'—')}
-    ${f('numbers','n',r.numbers,'—')}
-    <div class="foot">
-      <select class="out" data-id="${esc(r.id)}" data-set="${set}" aria-label="How did this go in the meeting?">
-        ${OUTCOMES.map(([v,l])=>`<option value="${v}" ${r.outcome===v?'selected':''}>${l}</option>`).join('')}
-      </select>
-      <span class="spacer"></span>
-      <button class="btn quiet" data-del="${esc(r.id)}">Delete</button>
-    </div>
-  </div>`;
-}
-
+const label = v => (OUTCOMES.find(o=>o[0]===v)||['',''])[1];
 function autosize(el){ el.style.height='auto'; el.style.height = el.scrollHeight+'px'; }
 
 function renderSetup(app){
