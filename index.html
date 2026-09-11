@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Spine</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700&family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap');
+
+:root{
+  --paper:#F0F2ED; --card:#FFF; --ink:#161C1A; --pine:#2C6A57; --pine-deep:#1E4A3D;
+  --mark:#F5C518; --mute:#78857F; --line:#D8DED6; --warn:#B4432B;
+  --sans:'DM Sans',system-ui,sans-serif; --display:'Bricolage Grotesque',system-ui,sans-serif;
+  --mono:'DM Mono',ui-monospace,monospace;
+}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 15px/1.5 var(--sans)}
+:focus-visible{outline:2px solid var(--mark);outline-offset:2px;border-radius:4px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+.page{max-width:680px;margin:0 auto;padding:28px 20px 80px}
+header{display:flex;align-items:baseline;gap:8px;margin-bottom:26px}
+.brand{font:700 21px var(--display);letter-spacing:-.02em}
+.nib{width:22px;height:3px;background:var(--mark);border-radius:2px}
+.spacer{flex:1}
+
+.eyebrow{font:500 11px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
+.eyebrow.pine{color:var(--pine)}
+.hint{color:var(--mute);font-size:14px;margin:8px 0 0}
+
+.btn{font:500 13px/1 var(--sans);padding:9px 14px;border-radius:8px;cursor:pointer;
+  border:1px solid var(--line);background:transparent;color:var(--ink)}
+.btn:hover{background:rgba(44,106,87,.08)}
+.btn.solid{background:var(--pine);color:#fff;border-color:var(--pine)}
+.btn.solid:hover{background:var(--pine-deep)}
+.btn.quiet{border-color:transparent;color:var(--mute);padding:6px 8px;font-size:12px}
+.btn[disabled]{opacity:.4;cursor:default}
+
+.topics{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:24px}
+.chip{font:500 13px var(--sans);padding:8px 14px;border-radius:999px;cursor:pointer;
+  border:1px solid var(--line);background:var(--card);color:var(--ink)}
+.chip.on{background:var(--pine);color:#fff;border-color:var(--pine)}
+
+h1{font:700 clamp(24px,4.5vw,32px)/1.2 var(--display);letter-spacing:-.025em;margin:0 0 4px}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;
+  padding:16px 18px;margin-bottom:12px}
+.card .lbl{font:500 10px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--mute);margin-bottom:5px}
+.card .grp+.grp{margin-top:13px}
+.ed{width:100%;border:none;background:transparent;outline:none;color:var(--ink);padding:0;
+  font:400 15px/1.5 var(--sans);resize:none;overflow:hidden}
+.ed.q{font-weight:700;font-size:16px}
+.ed.n{font-family:var(--mono);font-size:14px;color:var(--pine)}
+.ed::placeholder{color:#B6BEB9}
+.ed:focus{background:rgba(245,197,24,.10);border-radius:4px;box-shadow:0 0 0 6px rgba(245,197,24,.10)}
+
+.foot{display:flex;align-items:center;gap:10px;margin-top:15px;padding-top:13px;
+  border-top:1px solid var(--line)}
+select.out{font:500 12px var(--sans);padding:7px 10px;border-radius:7px;
+  border:1px solid var(--line);background:var(--paper);color:var(--ink);cursor:pointer;max-width:100%}
+select.out[data-set="1"]{border-color:var(--pine);color:var(--pine)}
+select.out[data-set="2"]{border-color:var(--warn);color:var(--warn)}
+
+.tally{display:flex;gap:16px;flex-wrap:wrap;margin:0 0 22px;padding:14px 18px;
+  background:var(--card);border:1px solid var(--line);border-radius:12px}
+.tally b{font:700 19px var(--display);display:block}
+.tally span{font:500 11px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+
+.newpoint{background:var(--card);border:1px dashed var(--line);border-radius:12px;padding:16px 18px}
+.fld{width:100%;padding:10px 12px;border-radius:8px;border:1px solid var(--line);
+  background:var(--paper);color:var(--ink);font:400 15px/1.5 var(--sans);outline:none;resize:vertical}
+.fld.mono{font-family:var(--mono);font-size:14px}
+.fld+.lbl{margin-top:14px}
+.lbl{display:block;font:500 10px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;
+  color:var(--mute);margin-bottom:6px}
+
+#bar{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--pine-deep);
+  color:#fff;padding:9px 18px;border-radius:999px;font:500 13px var(--sans);display:none;z-index:9}
+#bar.on{display:block} #bar.bad{background:var(--warn)}
+.muted{color:var(--mute);text-align:center;padding:40px 0;font-size:14px}
+</style>
+</head>
+<body>
+<div class="page">
+  <header>
+    <span class="brand">Spine</span><span class="nib"></span>
+    <span class="spacer"></span>
+    <button class="btn quiet" id="settings">Sheet</button>
+  </header>
+  <div id="app"></div>
+</div>
+<div id="bar"></div>
+
+<script>
+/* Every point lives in your Google Sheet. The only thing kept in this browser
+   is the Sheet's web app URL, so the page knows where to look. */
+
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzZlTFLwSXWGpO_vzMx1RgVxietsmxBO9eGnVhaKJMJ27PCvjXKaGmuyv_EoDDGkABLHQ/exec';
+
+const URLKEY = 'spine-sheet-url';
+const OUTCOMES = [
+  ['',       'Not reviewed yet'],
+  ['covered','Covered it well'],
+  ['missed', 'Thought of it, but missed it'],
+  ['muddled',"Said it, but couldn't convey it"],
+  ['nochance','Never came up'],
+];
+const GOOD = ['covered'], BAD = ['missed','muddled'];
+
+const $  = (s,r=document)=>r.querySelector(s);
+const $$ = (s,r=document)=>[...r.querySelectorAll(s)];
+const esc = s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+let URL_ = localStorage.getItem(URLKEY) || SHEET_URL;
+let rows = [];          // straight from the Sheet, never cached
+let topic = null;
+let busy = false;
+let showSetup = false;
+
+/* ------------------------------- transport ------------------------------ */
+
+function bar(msg, bad){
+  const b = $('#bar'); b.textContent = msg; b.className = 'on'+(bad?' bad':'');
+  clearTimeout(bar._t); bar._t = setTimeout(()=>b.className='', bad?6000:2500);
+}
+
+async function pull(){
+  if(!URL_) return;
+  const res = await fetch(URL_ + (URL_.includes('?')?'&':'?') + 'action=list', {redirect:'follow'});
+  const data = await res.json();
+  if(!data.ok) throw new Error(data.error||'Sheet returned an error');
+  rows = data.rows || [];
+}
+
+async function send(payload){
+  const res = await fetch(URL_, {method:'POST',
+    headers:{'Content-Type':'text/plain;charset=utf-8'},
+    body: JSON.stringify(payload), redirect:'follow'});
+  const data = await res.json();
+  if(!data.ok) throw new Error(data.error||'Sheet returned an error');
+  return data;
+}
+
+/* Write, then re-read, so what you see is always what the Sheet holds. */
+async function write(payload, msg){
+  if(busy) return;
+  busy = true; render();
+  try{
+    await send(payload);
+    await pull();
+    bar(msg);
+  }catch(e){
+    bar('Sheet unreachable — nothing was saved. '+e.message, true);
+  }
+  busy = false; render();
+}
+
+async function refresh(){
+  busy = true; render();
+  try{ await pull(); }
+  catch(e){ bar('Could not read the Sheet. '+e.message, true); }
+  busy = false; render();
+}
+
+/* -------------------------------- render -------------------------------- */
+
+function render(){
+  const app = $('#app');
+  if(!URL_ || showSetup) return renderSetup(app);
+
+  const topics = [...new Set(rows.map(r=>r.topic).filter(Boolean))];
+  if(render._pendingTopic){
+    if(topics.includes(render._pendingTopic)) render._pendingTopic = null;
+    else topics.push(render._pendingTopic);
+  }
+  if(topic && !topics.includes(topic)) topic = null;
+  if(!topic) topic = topics[0] || null;
+
+  const mine = rows.filter(r=>r.topic===topic);
+  const good = mine.filter(r=>GOOD.includes(r.outcome)).length;
+  const bad  = mine.filter(r=>BAD.includes(r.outcome)).length;
+  const open = mine.filter(r=>!r.outcome).length;
+
+  app.innerHTML = `
+    <div class="topics">
+      ${topics.map(t=>`<button class="chip ${t===topic?'on':''}" data-t="${esc(t)}">${esc(t)}</button>`).join('')}
+      <button class="btn" id="newTopic">+ New topic</button>
+      <span class="spacer"></span>
+      <button class="btn quiet" id="refresh" ${busy?'disabled':''}>${busy?'Syncing…':'Refresh'}</button>
+    </div>
+
+    ${!topic ? `<div class="muted">No topics yet. Start one, then add your points to it.</div>` : `
+      <h1>${esc(topic)}</h1>
+      <p class="hint" style="margin-bottom:22px">${mine.length} point${mine.length===1?'':'s'} in your Sheet</p>
+
+      ${mine.some(r=>r.outcome) ? `
+        <div class="tally">
+          <div><b>${good}</b><span>covered</span></div>
+          <div><b>${bad}</b><span>missed or muddled</span></div>
+          <div><b>${open}</b><span>not reviewed</span></div>
+        </div>` : ''}
+
+      ${mine.map(r=>card(r)).join('')}
+
+      <div class="newpoint" id="np">
+        <div class="eyebrow pine">Add a point</div>
+        <label class="lbl" style="margin-top:14px" for="nq">Question or topic</label>
+        <textarea class="fld" id="nq" rows="2" placeholder="What will they ask, or what do you need to raise?"></textarea>
+        <label class="lbl" for="nr">My response</label>
+        <textarea class="fld" id="nr" rows="3" placeholder="What you intend to say"></textarea>
+        <label class="lbl" for="nn">Numbers</label>
+        <textarea class="fld mono" id="nn" rows="2" placeholder="Any figures, and where they came from"></textarea>
+        <div style="margin-top:14px">
+          <button class="btn solid" id="savePoint" ${busy?'disabled':''}>${busy?'Saving…':'Save to Sheet'}</button>
+        </div>
+      </div>`}`;
+
+  $$('.chip',app).forEach(c=>c.onclick=()=>{ topic=c.dataset.t; render._pendingTopic=null; render(); });
+  $('#refresh').onclick = refresh;
+  $('#newTopic').onclick = () => {
+    const name = prompt('Name this topic — the meeting, or the subject you need to speak to:');
+    if(!name || !name.trim()) return;
+    topic = name.trim(); render._pendingTopic = topic; render();
+    setTimeout(()=>$('#nq')?.focus(), 0);
+  };
+
+  if(!topic) return;
+
+  $('#savePoint').onclick = () => {
+    const q = $('#nq').value.trim(), r = $('#nr').value.trim(), n = $('#nn').value.trim();
+    if(!q && !r) return bar('Write a question or a response first', true);
+    render._pendingTopic = topic;
+    write({action:'add', topic, question:q, response:r, numbers:n}, 'Saved to your Sheet');
+  };
+
+  /* editing an existing point: only writes if the text actually changed */
+  $$('.ed[data-id]',app).forEach(el=>{
+    autosize(el);
+    el.oninput = () => autosize(el);
+    el.onblur = () => {
+      const val = el.value.trim();
+      if(val === el.dataset.was) return;
+      el.dataset.was = val;
+      write({action:'update', id:el.dataset.id, field:el.dataset.field, value:val}, 'Updated');
+    };
+  });
+
+  $$('select.out',app).forEach(s=>s.onchange = () =>
+    write({action:'update', id:s.dataset.id, field:'outcome', value:s.value}, 'Outcome recorded'));
+
+  $$('[data-del]',app).forEach(b=>b.onclick = () => {
+    if(confirm('Delete this point from the Sheet?'))
+      write({action:'delete', id:b.dataset.del}, 'Deleted');
+  });
+}
+
+function card(r){
+  const set = GOOD.includes(r.outcome) ? 1 : BAD.includes(r.outcome) ? 2 : 0;
+  const f = (field, cls, val, ph) => `
+    <div class="grp">
+      <div class="lbl">${field==='question'?'Question or topic':field==='response'?'My response':'Numbers'}</div>
+      <textarea class="ed ${cls}" data-id="${esc(r.id)}" data-field="${field}"
+        data-was="${esc(val)}" rows="1" placeholder="${ph}">${esc(val)}</textarea>
+    </div>`;
+  return `<div class="card">
+    ${f('question','q',r.question,'—')}
+    ${f('response','',r.response,'—')}
+    ${f('numbers','n',r.numbers,'—')}
+    <div class="foot">
+      <select class="out" data-id="${esc(r.id)}" data-set="${set}" aria-label="How did this go in the meeting?">
+        ${OUTCOMES.map(([v,l])=>`<option value="${v}" ${r.outcome===v?'selected':''}>${l}</option>`).join('')}
+      </select>
+      <span class="spacer"></span>
+      <button class="btn quiet" data-del="${esc(r.id)}">Delete</button>
+    </div>
+  </div>`;
+}
+
+function autosize(el){ el.style.height='auto'; el.style.height = el.scrollHeight+'px'; }
+
+function renderSetup(app){
+  const custom = URL_ !== SHEET_URL;
+  app.innerHTML = `
+    <h1>Which Sheet?</h1>
+    <p class="hint" style="margin-bottom:20px">This page is already pointed at your Sheet.
+    Change it below only if you want to use a different one — that override is stored in this
+    browser and leaves the built-in URL untouched.</p>
+    <label class="lbl" for="u">Web app URL ${custom?'<span style="color:var(--pine)">· overridden here</span>':'· built in'}</label>
+    <textarea class="fld mono" id="u" rows="3"
+      placeholder="https://script.google.com/macros/s/…/exec">${esc(URL_)}</textarea>
+    <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn solid" id="connect">Use this Sheet</button>
+      ${custom?`<button class="btn" id="reset">Back to the built-in one</button>`:''}
+      <button class="btn quiet" id="cancel">Cancel</button>
+    </div>`;
+
+  $('#connect').onclick = async () => {
+    const v = $('#u').value.trim();
+    if(!v) return bar('Paste a URL first', true);
+    const prev = URL_;
+    URL_ = v;
+    try{
+      await pull();
+      if(v === SHEET_URL) localStorage.removeItem(URLKEY);
+      else localStorage.setItem(URLKEY, v);
+      showSetup = false; bar('Connected'); render();
+    }catch(e){
+      URL_ = prev;
+      bar('Could not reach that URL. Check it is deployed with access set to Anyone.', true);
+    }
+  };
+
+  if($('#reset')) $('#reset').onclick = () => {
+    localStorage.removeItem(URLKEY); URL_ = SHEET_URL; showSetup = false;
+    topic = null; render(); refresh();
+  };
+
+  $('#cancel').onclick = () => { showSetup = false; render(); };
+}
+
+$('#settings').onclick = () => { showSetup = !showSetup; render(); };
+
+render();
+if(URL_) refresh();
+</script>
+</body>
+</html>
