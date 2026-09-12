@@ -46,35 +46,55 @@ header{display:flex;align-items:baseline;gap:8px;margin-bottom:26px}
 .btn.quiet{border-color:transparent;color:var(--mute);padding:6px 8px;font-size:12px}
 .btn[disabled]{opacity:.4;cursor:default}
 
-.topics{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:24px}
-.chip{font:500 13px var(--sans);padding:8px 14px;border-radius:999px;cursor:pointer;
-  border:1px solid var(--line);background:var(--card);color:var(--ink)}
-.chip.on{background:var(--pine);color:#fff;border-color:var(--pine)}
+.bartop{display:flex;align-items:center;gap:8px;margin-bottom:18px}
 
-h1{font:700 clamp(24px,4.5vw,32px)/1.2 var(--display);letter-spacing:-.025em;margin:0 0 4px}
+/* home: the topic list */
+.tlist{margin-bottom:12px}
+.tcard{display:flex;align-items:center;gap:12px;width:100%;text-align:left;cursor:pointer;
+  background:var(--card);border:1px solid var(--line);border-radius:12px;
+  padding:15px 16px;margin-bottom:9px;font-family:var(--sans);color:var(--ink)}
+.tcard:hover{border-color:var(--pine);background:rgba(44,106,87,.03)}
+.tbody{flex:1;min-width:0}
+.tname{font:700 16px/1.35 var(--sans);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tmeta{font:400 13px/1.4 var(--sans);color:var(--mute);margin-top:3px}
+.flag{color:var(--warn)}
+.chev{color:#C3CAC5;font-size:19px;line-height:1;flex-shrink:0}
+.tcard:hover .chev{color:var(--pine)}
 
-.modes{display:inline-flex;gap:3px;padding:3px;background:var(--card);border:1px solid var(--line);
-  border-radius:10px;margin-bottom:20px}
-.mbtn{font:500 13px var(--sans);padding:8px 16px;border-radius:7px;border:none;cursor:pointer;
-  background:transparent;color:var(--mute)}
-.mbtn.on{background:var(--pine);color:#fff}
+/* a topic: its points, shut by default */
+.plist{margin-bottom:12px}
+.prow{display:flex;align-items:center;gap:11px;width:100%;text-align:left;cursor:pointer;
+  background:var(--card);border:1px solid var(--line);border-radius:12px;
+  padding:13px 15px;margin-bottom:8px;font-family:var(--sans);color:var(--ink)}
+.prow:hover{border-color:var(--pine)}
+.pq{flex:1;min-width:0;font:500 14.5px/1.45 var(--sans);
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.empty{color:#BFC6C1;font-weight:400}
+.dots{font:400 15px/1 var(--mono);color:#C3CAC5;letter-spacing:2px;flex-shrink:0}
 
-.grid{border:1px solid var(--line);border-radius:12px;background:var(--card);overflow:hidden;margin-bottom:12px}
-.ghead,.grow{display:grid;grid-template-columns:34px 1fr 1.25fr .85fr 26px;gap:14px;
-  padding:11px 14px;align-items:start}
-.ghead{background:var(--paper);border-bottom:1px solid var(--line)}
-.ghead div{font:500 10px/1.4 var(--mono);letter-spacing:.13em;text-transform:uppercase;color:var(--mute)}
-.grow+.grow{border-top:1px solid var(--line)}
-.grow:hover{background:rgba(44,106,87,.03)}
-.grow.adding{background:rgba(245,197,24,.07);border-top:1px solid var(--line)}
-.idx{font:500 12px/1.7 var(--mono);color:var(--mute);display:flex;align-items:center;gap:5px}
+.prow.open{display:block;cursor:default;border-color:var(--pine);
+  box-shadow:0 0 0 3px rgba(44,106,87,.08);padding:14px 16px 12px}
+.prow.open:hover{border-color:var(--pine)}
+.prow.open.adding{border-color:var(--mark);box-shadow:0 0 0 3px rgba(245,197,24,.2)}
+.phead{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+.pcols{display:grid;grid-template-columns:1fr 1.2fr .85fr;gap:16px;align-items:start}
+.pfoot{display:flex;gap:10px;align-items:center;margin-top:13px;padding-top:11px;
+  border-top:1px solid var(--line)}
 .cell{min-width:0}
+.cell::before{content:attr(data-l);display:block;font:500 9.5px/1 var(--mono);
+  letter-spacing:.13em;text-transform:uppercase;color:var(--mute);margin-bottom:6px}
+
+.idx{font:500 11px/1 var(--mono);color:var(--pine);flex-shrink:0;
+  width:23px;height:23px;border-radius:50%;background:var(--paper);border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center}
 .pip{width:7px;height:7px;border-radius:50%;background:var(--line);flex-shrink:0}
 .pip.good{background:var(--pine)} .pip.bad{background:var(--warn)}
-.x{background:none;border:none;color:#C3CAC5;cursor:pointer;font-size:13px;padding:3px;line-height:1.4}
+.otag{font:500 10px/1 var(--mono);letter-spacing:.1em;text-transform:uppercase;
+  padding:5px 9px;border-radius:999px;background:var(--paper);border:1px solid var(--line);color:var(--mute)}
+.otag.good{color:var(--pine);border-color:rgba(44,106,87,.45)}
+.otag.bad{color:var(--warn);border-color:rgba(180,67,43,.45)}
+.x{background:none;border:none;color:#C3CAC5;cursor:pointer;font-size:13px;padding:4px;line-height:1.4}
 .x:hover{color:var(--warn)}
-.addfoot{display:flex;gap:10px;align-items:center;padding:12px 14px;
-  border-top:1px solid var(--line);background:rgba(245,197,24,.07)}
 .addbtn{width:100%;padding:13px;border-style:dashed;color:var(--pine);font-weight:500}
 
 .ed{width:100%;border:none;background:transparent;outline:none;color:var(--ink);padding:2px 0;
@@ -136,34 +156,23 @@ h1{font:700 clamp(24px,4.5vw,32px)/1.2 var(--display);letter-spacing:-.025em;mar
   .eyebrow{font-size:10.5px;letter-spacing:.14em}
   .muted{padding:32px 0;font-size:13.5px}
 
-  /* ---- topic chips: long meeting names must not eat the screen ---- */
-  .topics{gap:7px;margin-bottom:16px}
-  .topics .spacer{display:none}
-  .chip{padding:11px 15px;font-size:14px;min-height:42px;max-width:100%;
-    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  /* ---- home: topic cards ------------------------------------------ */
+  .bartop{margin-bottom:14px}
+  .tcard{padding:15px;border-radius:13px;margin-bottom:8px}
+  .tname{font-size:15.5px}
+  .tmeta{font-size:12.5px}
 
-  /* ---- points: one card each, rather than one long slab ---------- */
-  .grid{border:none;background:transparent;border-radius:0;overflow:visible;margin-bottom:10px}
-  .ghead{display:none}
-  .grow{grid-template-columns:1fr;gap:0;padding:14px 15px 15px;position:relative;
-    background:var(--card);border:1px solid var(--line);border-radius:13px;margin-bottom:9px}
-  .grow+.grow{border-top:1px solid var(--line)}
-  .grow:hover{background:var(--card)}
-  .grow.adding{background:var(--card);border-color:var(--mark);
-    box-shadow:0 0 0 3px rgba(245,197,24,.18)}
+  /* ---- points: shut rows stay one line tall ----------------------- */
+  .prow{padding:13px 14px;border-radius:13px;gap:10px}
+  .pq{font-size:14.5px;-webkit-line-clamp:3}
+  .prow.open{padding:14px 15px 12px}
+  .phead{margin-bottom:10px}
 
-  /* the number reads as a marker, not a stray digit */
-  .grow .idx{margin:0 0 4px;font-size:11px;line-height:1;
-    width:23px;height:23px;border-radius:50%;background:var(--paper);
-    border:1px solid var(--line);justify-content:center;color:var(--pine);font-weight:500}
-  .grow .idx .pip{position:absolute;left:31px;top:20px}
-
-  /* each field separated, so three stacked cells do not read as prose */
+  /* three columns will not fit; stack them with their labels */
+  .pcols{grid-template-columns:1fr;gap:0}
   .cell{padding-top:11px;margin-top:11px;border-top:1px solid var(--line)}
-  .cell:first-of-type{border-top:none;margin-top:4px;padding-top:0}
-  .cell::before{content:attr(data-l);display:block;font:500 9.5px/1 var(--mono);
-    letter-spacing:.13em;text-transform:uppercase;color:var(--mute);margin-bottom:7px}
-  .grow .x{position:absolute;top:12px;right:11px;padding:9px;font-size:15px}
+  .cell:first-child{border-top:none;margin-top:0;padding-top:0}
+  .cell::before{font-size:9.5px;margin-bottom:7px}
 
   /* 16px is the threshold below which iOS Safari zooms on focus */
   .ed,.fld{font-size:16px;line-height:1.5}
@@ -171,9 +180,10 @@ h1{font:700 clamp(24px,4.5vw,32px)/1.2 var(--display);letter-spacing:-.025em;mar
   .ed{padding:4px 0;min-height:28px}
   .ed:focus{box-shadow:0 0 0 4px rgba(245,197,24,.14)}
 
-  .addfoot{flex-direction:column;align-items:stretch;gap:8px;
-    background:transparent;border-top:none;padding:2px 0 0}
-  .addfoot .btn{width:100%}
+  .pfoot{flex-direction:column;align-items:stretch;gap:8px;margin-top:12px}
+  .pfoot .btn{width:100%}
+  .addbtn{padding:15px;min-height:52px;border-radius:13px;font-size:14px}
+
   .addbtn{padding:15px;min-height:52px;border-radius:13px;font-size:14px}
 
   /* ---- controls: nothing smaller than a fingertip ----------------- */
@@ -214,7 +224,8 @@ h1{font:700 clamp(24px,4.5vw,32px)/1.2 var(--display);letter-spacing:-.025em;mar
   .opt{min-height:44px}
   .tally{grid-template-columns:1fr 1fr;gap:12px 10px}
   h1{font-size:20px}
-  .chip{font-size:13.5px;padding:10px 13px}
+  .tname{font-size:15px}
+  .prow{padding:12px 13px}
 }
 
 </style>
@@ -257,6 +268,7 @@ let busy = false;
 let showSetup = false;
 let mode = 'prep';      // prep | review
 let adding = false;
+let expanded = null;    // id of the point currently open
 let naming = false;     // inline "name this topic" field is open
 let draft = {q:'',r:'',n:''};
 
@@ -323,7 +335,10 @@ async function refresh(){
   busy = false; render();
 }
 
-/* -------------------------------- render -------------------------------- */
+/* -------------------------------- render --------------------------------
+ * Two screens. No topic selected shows the topic list; picking one shows its
+ * points. Points are shut by default — the question alone is what you scan.
+ * ---------------------------------------------------------------------- */
 
 function render(){
   const app = $('#app');
@@ -335,15 +350,17 @@ function render(){
     else topics.push(render._pendingTopic);
   }
   if(topic && !topics.includes(topic)) topic = null;
-  if(!topic) topic = topics[0] || null;
 
-  const mine = rows.filter(r=>r.topic===topic);
-  if(!mine.length) mode = 'prep';
+  if(!topic) return renderHome(app, topics);
+  renderTopic(app, rows.filter(r=>r.topic===topic));
+}
 
+/* --------------------------------- home ---------------------------------- */
+
+function renderHome(app, topics){
   app.innerHTML = `
-    <div class="topics">
-      ${topics.map(t=>`<button class="chip ${t===topic?'on':''}" data-t="${esc(t)}">${esc(t)}</button>`).join('')}
-      ${naming ? '' : `<button class="btn" id="newTopic">+ New topic</button>`}
+    <div class="bartop">
+      <div class="eyebrow">${topics.length} topic${topics.length===1?'':'s'}</div>
       <span class="spacer"></span>
       <button class="btn quiet" id="refresh" ${busy?'disabled':''}>${busy?'Syncing…':'Refresh'}</button>
     </div>
@@ -359,80 +376,135 @@ function render(){
         </div>
       </div>` : ''}
 
-    ${!topic ? (naming ? '' : `<div class="muted">No topics yet. Start one, then add your points to it.</div>`) : `
-      <h1>${esc(topic)}</h1>
-      <p class="hint" style="margin-bottom:18px">${mine.length} point${mine.length===1?'':'s'}</p>
+    ${topics.length ? `
+      <div class="tlist">
+        ${topics.map(t=>{
+          const pts = rows.filter(r=>r.topic===t);
+          const done = pts.filter(r=>r.outcome).length;
+          const bad  = pts.filter(r=>BAD.includes(r.outcome)).length;
+          return `<button class="tcard" data-t="${esc(t)}">
+            <div class="tbody">
+              <div class="tname">${esc(t)}</div>
+              <div class="tmeta">${pts.length} point${pts.length===1?'':'s'}${
+                done ? ` · ${done} reviewed` : ''}${
+                bad ? ` · <span class="flag">${bad} to fix</span>` : ''}</div>
+            </div>
+            <span class="chev">›</span>
+          </button>`;
+        }).join('')}
+      </div>` : (naming ? '' : `<div class="muted">No topics yet. Start one, then add your points to it.</div>`)}
 
-      ${mine.length ? `<div class="modes">
-        <button class="mbtn ${mode==='prep'?'on':''}" data-m="prep">Prepare</button>
-        <button class="mbtn ${mode==='review'?'on':''}" data-m="review">Review after</button>
-      </div>` : ''}
+    ${naming ? '' : `<button class="btn addbtn" id="newTopic">+ New topic</button>`}`;
 
-      ${mode === 'review' ? reviewView(mine) : prepView(mine)}
-    `}`;
-
-  $$('.chip',app).forEach(c=>c.onclick=()=>{ topic=c.dataset.t; adding=false; naming=false; mode='prep'; render(); });
-  $$('.mbtn',app).forEach(b=>b.onclick=()=>{ mode=b.dataset.m; adding=false; render(); });
   $('#refresh').onclick = refresh;
+  $$('.tcard',app).forEach(c=>c.onclick=()=>{
+    topic = c.dataset.t; mode='prep'; expanded=null; adding=false; render(); window.scrollTo(0,0);
+  });
+  wireNaming();
+}
 
-  if($('#newTopic')) $('#newTopic').onclick = () => {
-    naming = true; render(); setTimeout(()=>$('#tname')?.focus(), 0);
-  };
+function wireNaming(){
+  if($('#newTopic')) $('#newTopic').onclick = () => { naming = true; render(); setTimeout(()=>$('#tname')?.focus(),0); };
   if($('#cancelTopic')) $('#cancelTopic').onclick = () => { naming = false; render(); };
   if($('#startTopic')){
     const go = () => {
       const name = $('#tname').value.trim();
       if(!name) return bar('Give the topic a name first', true);
       topic = name; render._pendingTopic = name;
-      naming = false; mode = 'prep'; adding = true; render();
+      naming = false; mode = 'prep'; adding = true; expanded = null; render();
       setTimeout(()=>$('#nq')?.focus(), 0);
     };
     $('#startTopic').onclick = go;
     $('#tname').onkeydown = e => { if(e.key === 'Enter'){ e.preventDefault(); go(); } };
   }
+}
 
-  if(!topic) return;
+/* -------------------------------- a topic -------------------------------- */
+
+function renderTopic(app, mine){
+  if(!mine.length) mode = 'prep';
+
+  app.innerHTML = `
+    <div class="bartop">
+      <button class="btn quiet" id="back">‹ All topics</button>
+      <span class="spacer"></span>
+      <button class="btn quiet" id="refresh" ${busy?'disabled':''}>${busy?'Syncing…':'Refresh'}</button>
+    </div>
+
+    <h1>${esc(topic)}</h1>
+    <p class="hint" style="margin-bottom:18px">${mine.length} point${mine.length===1?'':'s'}</p>
+
+    ${mine.length ? `<div class="modes">
+      <button class="mbtn ${mode==='prep'?'on':''}" data-m="prep">Prepare</button>
+      <button class="mbtn ${mode==='review'?'on':''}" data-m="review">Review after</button>
+    </div>` : ''}
+
+    ${mode === 'review' ? reviewView(mine) : prepView(mine)}`;
+
+  $('#back').onclick = () => { topic = null; expanded = null; adding = false; render(); window.scrollTo(0,0); };
+  $('#refresh').onclick = refresh;
+  $$('.mbtn',app).forEach(b=>b.onclick=()=>{ mode=b.dataset.m; adding=false; expanded=null; render(); });
+
   if(mode === 'review') return wireReview(app);
   wirePrep(app);
 }
 
 /* --------------------------------- prep ---------------------------------
- * Laid out like the Sheet it writes to: three columns across, points down.
- * Cells are editable in place and save when you click away.
+ * Shut, a point is just its question. Open, the three fields sit side by side
+ * on a wide screen and stack on a narrow one, editable where they sit.
  * ---------------------------------------------------------------------- */
 
 function prepView(mine){
   return `
-    <div class="grid">
-      <div class="ghead">
-        <div>#</div><div>Question or topic</div><div>My response</div><div>Numbers</div><div></div>
-      </div>
-      ${mine.map((r,i)=>`
-        <div class="grow">
-          <div class="idx">${i+1}${r.outcome?`<span class="pip ${GOOD.includes(r.outcome)?'good':BAD.includes(r.outcome)?'bad':''}" title="${esc(label(r.outcome))}"></span>`:''}</div>
-          ${cell(r,'question','Question or topic','q')}
-          ${cell(r,'response','My response','')}
-          ${cell(r,'numbers','Numbers','n')}
-          <button class="x" data-del="${esc(r.id)}" aria-label="Delete point ${i+1}">✕</button>
-        </div>`).join('')}
+    <div class="plist">
+      ${mine.map((r,i)=> r.id===expanded ? openPoint(r,i) : shutPoint(r,i)).join('')}
 
       ${adding ? `
-        <div class="grow adding">
-          <div class="idx">${mine.length+1}</div>
-          <div class="cell" data-l="Question or topic">
-            <textarea class="ed q" id="nq" rows="1" placeholder="What will they ask, or what do you need to raise?">${esc(draft.q)}</textarea></div>
-          <div class="cell" data-l="My response">
-            <textarea class="ed" id="nr" rows="1" placeholder="What you intend to say">${esc(draft.r)}</textarea></div>
-          <div class="cell" data-l="Numbers">
-            <textarea class="ed n" id="nn" rows="1" placeholder="Figures, and where from">${esc(draft.n)}</textarea></div>
-          <span></span>
-        </div>
-        <div class="addfoot">
-          <button class="btn solid" id="savePoint" ${busy?'disabled':''}>${busy?'Saving…':'Save to Sheet'}</button>
-          <button class="btn quiet" id="cancelAdd">Done adding</button>
+        <div class="prow open adding">
+          <div class="phead"><span class="idx">${mine.length+1}</span>
+            <span class="eyebrow pine">New point</span></div>
+          <div class="pcols">
+            <div class="cell" data-l="Question or topic">
+              <textarea class="ed q" id="nq" rows="1" placeholder="What will they ask, or what do you need to raise?">${esc(draft.q)}</textarea></div>
+            <div class="cell" data-l="My response">
+              <textarea class="ed" id="nr" rows="1" placeholder="What you intend to say">${esc(draft.r)}</textarea></div>
+            <div class="cell" data-l="Numbers">
+              <textarea class="ed n" id="nn" rows="1" placeholder="Figures, and where from">${esc(draft.n)}</textarea></div>
+          </div>
+          <div class="pfoot">
+            <button class="btn solid" id="savePoint" ${busy?'disabled':''}>${busy?'Saving…':'Save to Sheet'}</button>
+            <button class="btn quiet" id="cancelAdd">Done adding</button>
+          </div>
         </div>` : ''}
     </div>
     ${adding ? '' : `<button class="btn addbtn" id="addBtn">+ Add ${mine.length?'another ':''}point</button>`}`;
+}
+
+function shutPoint(r,i){
+  const filled = [r.response && 'response', r.numbers && 'numbers'].filter(Boolean).length;
+  return `<button class="prow" data-open="${esc(r.id)}">
+    <span class="idx">${i+1}</span>
+    <span class="pq">${esc(r.question) || '<span class="empty">No question written</span>'}</span>
+    ${r.outcome ? `<span class="pip ${GOOD.includes(r.outcome)?'good':BAD.includes(r.outcome)?'bad':''}" title="${esc(label(r.outcome))}"></span>` : ''}
+    ${filled ? `<span class="dots" title="${filled} more field${filled>1?'s':''}">${'·'.repeat(filled)}</span>` : ''}
+    <span class="chev">›</span>
+  </button>`;
+}
+
+function openPoint(r,i){
+  return `<div class="prow open">
+    <div class="phead"><span class="idx">${i+1}</span>
+      ${r.outcome ? `<span class="otag ${GOOD.includes(r.outcome)?'good':BAD.includes(r.outcome)?'bad':''}">${esc(label(r.outcome))}</span>` : ''}
+      <span class="spacer"></span>
+      <button class="x" data-del="${esc(r.id)}" aria-label="Delete point ${i+1}">✕</button>
+    </div>
+    <div class="pcols">
+      ${cell(r,'question','Question or topic','q')}
+      ${cell(r,'response','My response','')}
+      ${cell(r,'numbers','Numbers','n')}
+    </div>
+    <div class="pfoot"><button class="btn quiet" id="closePoint">Close</button></div>
+  </div>`;
 }
 
 function cell(r, field, lbl, cls){
@@ -443,6 +515,11 @@ function cell(r, field, lbl, cls){
 }
 
 function wirePrep(app){
+  $$('[data-open]',app).forEach(el=>el.onclick = () => {
+    expanded = el.dataset.open; adding = false; render();
+  });
+  if($('#closePoint')) $('#closePoint').onclick = () => { expanded = null; render(); };
+
   $$('.ed[data-id]',app).forEach(el=>{
     autosize(el);
     el.oninput = () => autosize(el);
@@ -455,10 +532,10 @@ function wirePrep(app){
   });
 
   $$('[data-del]',app).forEach(b=>b.onclick = () => {
-    if(confirm('Delete this point from the Sheet?')) write({action:'delete', id:b.dataset.del}, 'Deleted');
+    if(confirm('Delete this point from the Sheet?')){ expanded = null; write({action:'delete', id:b.dataset.del}, 'Deleted'); }
   });
 
-  if($('#addBtn')) $('#addBtn').onclick = () => { adding = true; render(); setTimeout(()=>$('#nq')?.focus(),0); };
+  if($('#addBtn')) $('#addBtn').onclick = () => { adding = true; expanded = null; render(); setTimeout(()=>$('#nq')?.focus(),0); };
   if($('#cancelAdd')) $('#cancelAdd').onclick = () => { adding = false; draft = {q:'',r:'',n:''}; render(); };
 
   /* the draft is held in memory so a failed save never loses what you typed */
@@ -475,15 +552,13 @@ function wirePrep(app){
     draft = {q,r,n};
     render._pendingTopic = topic;
     const before = rows.length;
-    await write({action:'add', topic, question:q, response:r, numbers:n}, 'Saved — the next row is ready');
+    await write({action:'add', topic, question:q, response:r, numbers:n}, 'Saved — the next one is ready');
     if(rows.length > before){
       draft = {q:'',r:'',n:''};   /* stays open, empty, for the next point */
       render(); setTimeout(()=>$('#nq')?.focus(),0);
     }
   };
 }
-
-/* -------------------------------- review -------------------------------- */
 
 function reviewView(mine){
   const done = mine.filter(r=>r.outcome).length;
@@ -499,7 +574,7 @@ function reviewView(mine){
       remember. One tap each.</p>
     </div>
 
-    <div class="list">
+    <div class="plist">
       ${mine.map((r,i)=>`
         <div class="rev ${r.outcome?'done':''}">
           <div class="revhead"><span class="idx">${i+1}</span>
