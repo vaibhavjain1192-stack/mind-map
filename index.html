@@ -2,7 +2,11 @@
 <html lang="en">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#F0F2ED" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+<meta name="apple-mobile-web-app-title" content="Spine" />
 <title>Spine</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700&family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap');
@@ -14,11 +18,17 @@
   --mono:'DM Mono',ui-monospace,monospace;
 }
 *,*::before,*::after{box-sizing:border-box}
-body{margin:0;background:var(--paper);color:var(--ink);font:400 15px/1.5 var(--sans)}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:400 15px/1.5 var(--sans);
+  overflow-x:hidden;overflow-wrap:break-word;-webkit-tap-highlight-color:rgba(44,106,87,.12)}
 :focus-visible{outline:2px solid var(--mark);outline-offset:2px;border-radius:4px}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 
 .page{max-width:680px;margin:0 auto;padding:28px 20px 80px}
+
+.naming{background:var(--card);border:1px solid var(--pine);border-radius:12px;
+  padding:16px 18px;margin-bottom:20px}
+.namebtns{display:flex;gap:10px;margin-top:12px}
 header{display:flex;align-items:baseline;gap:8px;margin-bottom:26px}
 .brand{font:700 21px var(--display);letter-spacing:-.02em}
 .nib{width:22px;height:3px;background:var(--mark);border-radius:2px}
@@ -74,16 +84,6 @@ h1{font:700 clamp(24px,4.5vw,32px)/1.2 var(--display);letter-spacing:-.025em;mar
 .ed::placeholder{color:#BFC6C1}
 .ed:focus{background:rgba(245,197,24,.14);border-radius:4px;box-shadow:0 0 0 5px rgba(245,197,24,.14)}
 
-@media (max-width:720px){
-  .ghead{display:none}
-  .grow{grid-template-columns:1fr;gap:0;padding:14px 16px;position:relative}
-  .grow .idx{margin-bottom:8px}
-  .cell{padding-top:11px}
-  .cell::before{content:attr(data-l);display:block;font:500 10px/1 var(--mono);
-    letter-spacing:.13em;text-transform:uppercase;color:var(--mute);margin-bottom:5px}
-  .grow .x{position:absolute;top:12px;right:14px}
-}
-
 .rq{font:700 15px/1.45 var(--sans)}
 .rr{font:400 14px/1.5 var(--sans);color:var(--mute);margin-top:4px;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -123,8 +123,100 @@ h1{font:700 clamp(24px,4.5vw,32px)/1.2 var(--display);letter-spacing:-.025em;mar
 .muted{color:var(--mute);text-align:center;padding:40px 0;font-size:14px}
 .diag{margin:10px 0 0;padding-left:20px;color:var(--mute);font-size:14px;line-height:1.65}
 .diag li{margin-bottom:9px}
-.diag code{font:400 12.5px var(--mono);background:rgba(44,106,87,.09);padding:1px 5px;border-radius:4px;color:var(--ink)}
+.diag code{word-break:break-all;overflow-wrap:anywhere;font:400 12.5px var(--mono);background:rgba(44,106,87,.09);padding:1px 5px;border-radius:4px;color:var(--ink)}
 .diag b{color:var(--ink)}
+@media (max-width:720px){
+
+  /* ---- rhythm ---------------------------------------------------- */
+  .page{padding:18px 15px calc(94px + env(safe-area-inset-bottom))}
+  header{margin-bottom:18px;align-items:center}
+  .brand{font-size:19px}
+  h1{font-size:clamp(21px,6.2vw,27px);line-height:1.18;margin-bottom:2px}
+  .hint{font-size:13.5px;line-height:1.55}
+  .eyebrow{font-size:10.5px;letter-spacing:.14em}
+  .muted{padding:32px 0;font-size:13.5px}
+
+  /* ---- topic chips: long meeting names must not eat the screen ---- */
+  .topics{gap:7px;margin-bottom:16px}
+  .topics .spacer{display:none}
+  .chip{padding:11px 15px;font-size:14px;min-height:42px;max-width:100%;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  /* ---- points: one card each, rather than one long slab ---------- */
+  .grid{border:none;background:transparent;border-radius:0;overflow:visible;margin-bottom:10px}
+  .ghead{display:none}
+  .grow{grid-template-columns:1fr;gap:0;padding:14px 15px 15px;position:relative;
+    background:var(--card);border:1px solid var(--line);border-radius:13px;margin-bottom:9px}
+  .grow+.grow{border-top:1px solid var(--line)}
+  .grow:hover{background:var(--card)}
+  .grow.adding{background:var(--card);border-color:var(--mark);
+    box-shadow:0 0 0 3px rgba(245,197,24,.18)}
+
+  /* the number reads as a marker, not a stray digit */
+  .grow .idx{margin:0 0 4px;font-size:11px;line-height:1;
+    width:23px;height:23px;border-radius:50%;background:var(--paper);
+    border:1px solid var(--line);justify-content:center;color:var(--pine);font-weight:500}
+  .grow .idx .pip{position:absolute;left:31px;top:20px}
+
+  /* each field separated, so three stacked cells do not read as prose */
+  .cell{padding-top:11px;margin-top:11px;border-top:1px solid var(--line)}
+  .cell:first-of-type{border-top:none;margin-top:4px;padding-top:0}
+  .cell::before{content:attr(data-l);display:block;font:500 9.5px/1 var(--mono);
+    letter-spacing:.13em;text-transform:uppercase;color:var(--mute);margin-bottom:7px}
+  .grow .x{position:absolute;top:12px;right:11px;padding:9px;font-size:15px}
+
+  /* 16px is the threshold below which iOS Safari zooms on focus */
+  .ed,.fld{font-size:16px;line-height:1.5}
+  .ed.n,.fld.mono{font-size:15px}
+  .ed{padding:4px 0;min-height:28px}
+  .ed:focus{box-shadow:0 0 0 4px rgba(245,197,24,.14)}
+
+  .addfoot{flex-direction:column;align-items:stretch;gap:8px;
+    background:transparent;border-top:none;padding:2px 0 0}
+  .addfoot .btn{width:100%}
+  .addbtn{padding:15px;min-height:52px;border-radius:13px;font-size:14px}
+
+  /* ---- controls: nothing smaller than a fingertip ----------------- */
+  .btn{padding:12px 16px;font-size:14px;min-height:44px}
+  .btn.quiet{padding:11px 12px;font-size:13px;min-height:44px}
+  .modes{display:flex;width:100%;margin-bottom:16px}
+  .mbtn{padding:12px 14px;font-size:14px;min-height:46px;flex:1}
+  .naming{padding:15px 16px;border-radius:13px}
+  .namebtns .btn{flex:1}
+
+  /* ---- review ----------------------------------------------------- */
+  .rev{padding:14px 15px;border-radius:13px}
+  .revhead{gap:11px;margin-bottom:12px}
+  .rq{font-size:14.5px;line-height:1.4}
+  .rr{font-size:13.5px}
+  .opts{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .opt{padding:12px 8px;font-size:12.5px;line-height:1.3;min-height:48px;text-align:center;
+    display:flex;align-items:center;justify-content:center;border-radius:11px}
+  .box{padding:15px 16px;border-radius:13px}
+
+  /* four stats in a row will not fit; two by two will */
+  .tally{display:grid;grid-template-columns:1fr 1fr;gap:14px 12px;padding:15px 16px;border-radius:13px}
+  .tally b{font-size:21px;margin-bottom:2px}
+  .tally span{font-size:9.5px;letter-spacing:.1em;line-height:1.3}
+  .verdict{font-size:14px;line-height:1.55;padding:13px 15px}
+
+  .diag{font-size:13px;padding-left:18px}
+  .diag code{font-size:11.5px}
+
+  #bar{left:15px;right:15px;transform:none;text-align:center;
+    bottom:calc(15px + env(safe-area-inset-bottom));font-size:13.5px;line-height:1.45;
+    border-radius:13px;padding:12px 16px}
+}
+
+@media (max-width:380px){
+  .page{padding-left:12px;padding-right:12px}
+  .opts{grid-template-columns:1fr}
+  .opt{min-height:44px}
+  .tally{grid-template-columns:1fr 1fr;gap:12px 10px}
+  h1{font-size:20px}
+  .chip{font-size:13.5px;padding:10px 13px}
+}
+
 </style>
 </head>
 <body>
@@ -165,6 +257,7 @@ let busy = false;
 let showSetup = false;
 let mode = 'prep';      // prep | review
 let adding = false;
+let naming = false;     // inline "name this topic" field is open
 let draft = {q:'',r:'',n:''};
 
 /* ------------------------------- transport ------------------------------
@@ -250,12 +343,23 @@ function render(){
   app.innerHTML = `
     <div class="topics">
       ${topics.map(t=>`<button class="chip ${t===topic?'on':''}" data-t="${esc(t)}">${esc(t)}</button>`).join('')}
-      <button class="btn" id="newTopic">+ New topic</button>
+      ${naming ? '' : `<button class="btn" id="newTopic">+ New topic</button>`}
       <span class="spacer"></span>
       <button class="btn quiet" id="refresh" ${busy?'disabled':''}>${busy?'Syncing…':'Refresh'}</button>
     </div>
 
-    ${!topic ? `<div class="muted">No topics yet. Start one, then add your points to it.</div>` : `
+    ${naming ? `
+      <div class="naming">
+        <label class="lbl" for="tname">Name this topic</label>
+        <input class="fld" id="tname" type="text" autocomplete="off"
+          placeholder="The meeting, or the subject you need to speak to" />
+        <div class="namebtns">
+          <button class="btn solid" id="startTopic">Start</button>
+          <button class="btn quiet" id="cancelTopic">Cancel</button>
+        </div>
+      </div>` : ''}
+
+    ${!topic ? (naming ? '' : `<div class="muted">No topics yet. Start one, then add your points to it.</div>`) : `
       <h1>${esc(topic)}</h1>
       <p class="hint" style="margin-bottom:18px">${mine.length} point${mine.length===1?'':'s'}</p>
 
@@ -267,16 +371,25 @@ function render(){
       ${mode === 'review' ? reviewView(mine) : prepView(mine)}
     `}`;
 
-  $$('.chip',app).forEach(c=>c.onclick=()=>{ topic=c.dataset.t; adding=false; mode='prep'; render(); });
+  $$('.chip',app).forEach(c=>c.onclick=()=>{ topic=c.dataset.t; adding=false; naming=false; mode='prep'; render(); });
   $$('.mbtn',app).forEach(b=>b.onclick=()=>{ mode=b.dataset.m; adding=false; render(); });
   $('#refresh').onclick = refresh;
-  $('#newTopic').onclick = () => {
-    const name = prompt('Name this topic — the meeting, or the subject you need to speak to:');
-    if(!name || !name.trim()) return;
-    topic = name.trim(); render._pendingTopic = topic;
-    mode='prep'; adding = true; render();
-    setTimeout(()=>$('#nq')?.focus(), 0);
+
+  if($('#newTopic')) $('#newTopic').onclick = () => {
+    naming = true; render(); setTimeout(()=>$('#tname')?.focus(), 0);
   };
+  if($('#cancelTopic')) $('#cancelTopic').onclick = () => { naming = false; render(); };
+  if($('#startTopic')){
+    const go = () => {
+      const name = $('#tname').value.trim();
+      if(!name) return bar('Give the topic a name first', true);
+      topic = name; render._pendingTopic = name;
+      naming = false; mode = 'prep'; adding = true; render();
+      setTimeout(()=>$('#nq')?.focus(), 0);
+    };
+    $('#startTopic').onclick = go;
+    $('#tname').onkeydown = e => { if(e.key === 'Enter'){ e.preventDefault(); go(); } };
+  }
 
   if(!topic) return;
   if(mode === 'review') return wireReview(app);
@@ -496,4 +609,3 @@ if(URL_) refresh();
 </script>
 </body>
 </html>
-             
