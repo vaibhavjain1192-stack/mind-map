@@ -109,6 +109,10 @@ h1{font:700 clamp(24px,4.5vw,32px)/1.2 var(--display);letter-spacing:-.025em;mar
   color:#fff;padding:9px 18px;border-radius:999px;font:500 13px var(--sans);display:none;z-index:9}
 #bar.on{display:block} #bar.bad{background:var(--warn)}
 .muted{color:var(--mute);text-align:center;padding:40px 0;font-size:14px}
+.diag{margin:10px 0 0;padding-left:20px;color:var(--mute);font-size:14px;line-height:1.65}
+.diag li{margin-bottom:9px}
+.diag code{font:400 12.5px var(--mono);background:rgba(44,106,87,.09);padding:1px 5px;border-radius:4px;color:var(--ink)}
+.diag b{color:var(--ink)}
 </style>
 </head>
 <body>
@@ -184,7 +188,20 @@ function jsonp(params){
 
 async function pull(){
   if(!URL_) return;
-  const data = await jsonp({action:'list'});
+  let data;
+  try{
+    data = await jsonp({action:'list'});
+  }catch(e){
+    /* A deployment running the older Code.gs answers with JSON and no callback
+       wrapper, which a script tag cannot execute. If the browser will let us
+       read it directly, that path still works — so try it before giving up. */
+    try{
+      const res = await fetch(URL_ + (URL_.includes('?')?'&':'?') + 'action=list', {redirect:'follow'});
+      data = await res.json();
+    }catch(e2){
+      throw e;
+    }
+  }
   if(!data || !data.ok) throw new Error((data && data.error) || 'The Sheet returned an error.');
   rows = data.rows || [];
 }
@@ -223,7 +240,9 @@ async function write(payload, msg){
 async function refresh(){
   busy = true; render();
   try{ await pull(); }
-  catch(e){ bar('Could not read the Sheet. '+e.message, true); }
+  catch(e){
+    bar('Could not read the Sheet. Open the Sheet button for a one-click check.', true);
+  }
   busy = false; render();
 }
 
@@ -465,11 +484,19 @@ function renderSetup(app){
       ${custom?`<button class="btn" id="reset">Back to the built-in one</button>`:''}
       <button class="btn quiet" id="cancel">Cancel</button>
     </div>
-    <p class="hint" style="margin-top:18px">Not loading?
-      <a href="${esc(URL_)}?action=list" target="_blank" rel="noopener"
-         style="color:var(--pine)">Open the endpoint in a tab</a>.
-      You should see <code style="font-family:var(--mono);font-size:13px">{"ok":true,"rows":[…]}</code>.
-      A sign-in page or an error page there means the deployment needs fixing, not this page.</p>`;
+    <p class="hint" style="margin-top:20px"><b>Not loading?</b>
+      <a href="${esc(URL_)}?action=list&callback=test" target="_blank" rel="noopener"
+         style="color:var(--pine)">Open the endpoint in a new tab</a> and see which of these you get:</p>
+    <ul class="diag">
+      <li><code>test({"ok":true,"rows":[…]});</code> — the backend is healthy, and this page should work.</li>
+      <li><code>{"ok":true,"rows":[…]}</code> with no <code>test(</code> around it — the updated
+        <code>Code.gs</code> is not deployed. Paste it in, then
+        <b>Deploy → Manage deployments → pencil → Version: New version</b>.</li>
+      <li>A Google <b>sign-in page</b> — the deployment's access is not set to Anyone. Same dialog,
+        change <b>Who has access</b>.</li>
+      <li>An <b>Apps Script error page</b> — run <code>setUpSheet</code> once from the editor and
+        finish the authorisation prompt.</li>
+    </ul>`;
 
   $('#connect').onclick = async () => {
     const v = $('#u').value.trim();
