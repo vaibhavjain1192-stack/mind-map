@@ -49,32 +49,44 @@ h1{font:700 clamp(24px,4.5vw,32px)/1.2 var(--display);letter-spacing:-.025em;mar
   background:transparent;color:var(--mute)}
 .mbtn.on{background:var(--pine);color:#fff}
 
-.list{margin-bottom:14px}
-.row{display:flex;gap:13px;background:var(--card);border:1px solid var(--line);border-radius:12px;
-  padding:14px 16px;margin-bottom:8px;cursor:pointer}
-.row:hover{border-color:var(--pine)}
-.row.open{cursor:default;border-color:var(--pine);box-shadow:0 0 0 3px rgba(44,106,87,.09)}
-.row.open:hover{border-color:var(--pine)}
-.idx{font:500 12px/1.6 var(--mono);color:var(--mute);flex-shrink:0;width:16px}
-.rowbody{flex:1;min-width:0}
+.grid{border:1px solid var(--line);border-radius:12px;background:var(--card);overflow:hidden;margin-bottom:12px}
+.ghead,.grow{display:grid;grid-template-columns:34px 1fr 1.25fr .85fr 26px;gap:14px;
+  padding:11px 14px;align-items:start}
+.ghead{background:var(--paper);border-bottom:1px solid var(--line)}
+.ghead div{font:500 10px/1.4 var(--mono);letter-spacing:.13em;text-transform:uppercase;color:var(--mute)}
+.grow+.grow{border-top:1px solid var(--line)}
+.grow:hover{background:rgba(44,106,87,.03)}
+.grow.adding{background:rgba(245,197,24,.07);border-top:1px solid var(--line)}
+.idx{font:500 12px/1.7 var(--mono);color:var(--mute);display:flex;align-items:center;gap:5px}
+.cell{min-width:0}
+.pip{width:7px;height:7px;border-radius:50%;background:var(--line);flex-shrink:0}
+.pip.good{background:var(--pine)} .pip.bad{background:var(--warn)}
+.x{background:none;border:none;color:#C3CAC5;cursor:pointer;font-size:13px;padding:3px;line-height:1.4}
+.x:hover{color:var(--warn)}
+.addfoot{display:flex;gap:10px;align-items:center;padding:12px 14px;
+  border-top:1px solid var(--line);background:rgba(245,197,24,.07)}
+.addbtn{width:100%;padding:13px;border-style:dashed;color:var(--pine);font-weight:500}
+
+.ed{width:100%;border:none;background:transparent;outline:none;color:var(--ink);padding:2px 0;
+  font:400 14px/1.55 var(--sans);resize:none;overflow:hidden}
+.ed.q{font-weight:700}
+.ed.n{font-family:var(--mono);font-size:13px;color:var(--pine)}
+.ed::placeholder{color:#BFC6C1}
+.ed:focus{background:rgba(245,197,24,.14);border-radius:4px;box-shadow:0 0 0 5px rgba(245,197,24,.14)}
+
+@media (max-width:720px){
+  .ghead{display:none}
+  .grow{grid-template-columns:1fr;gap:0;padding:14px 16px;position:relative}
+  .grow .idx{margin-bottom:8px}
+  .cell{padding-top:11px}
+  .cell::before{content:attr(data-l);display:block;font:500 10px/1 var(--mono);
+    letter-spacing:.13em;text-transform:uppercase;color:var(--mute);margin-bottom:5px}
+  .grow .x{position:absolute;top:12px;right:14px}
+}
+
 .rq{font:700 15px/1.45 var(--sans)}
 .rr{font:400 14px/1.5 var(--sans);color:var(--mute);margin-top:4px;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.rn{font:400 13px/1.5 var(--mono);color:var(--pine);margin-top:4px}
-.pip{width:9px;height:9px;border-radius:50%;background:var(--line);flex-shrink:0;margin-top:6px}
-.pip.good{background:var(--pine)} .pip.bad{background:var(--warn)}
-.addbtn{width:100%;padding:13px;border-style:dashed;color:var(--pine);font-weight:500}
-
-.grp+.grp{margin-top:13px}
-.lbl{display:block;font:500 10px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;
-  color:var(--mute);margin-bottom:6px}
-.ed{width:100%;border:none;background:transparent;outline:none;color:var(--ink);padding:0;
-  font:400 15px/1.5 var(--sans);resize:none;overflow:hidden}
-.ed.q{font-weight:700;font-size:16px}
-.ed.n{font-family:var(--mono);font-size:14px;color:var(--pine)}
-.ed::placeholder{color:#B6BEB9}
-.ed:focus{background:rgba(245,197,24,.10);border-radius:4px;box-shadow:0 0 0 6px rgba(245,197,24,.10)}
-.foot{display:flex;align-items:center;gap:10px;margin-top:15px;padding-top:13px;border-top:1px solid var(--line)}
 
 .rev{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:15px 17px;margin-bottom:8px}
 .rev.done{border-color:rgba(44,106,87,.4)}
@@ -152,17 +164,18 @@ let topic = null;
 let busy = false;
 let showSetup = false;
 let mode = 'prep';      // prep | review
-let expanded = null;    // id of the point opened for editing
 let adding = false;
 let draft = {q:'',r:'',n:''};
 
 /* ------------------------------- transport ------------------------------
- * Apps Script's /exec bounces through a redirect that does not carry CORS
- * headers, so a normal fetch() read is blocked by the browser. Reads go out
- * as JSONP (a script tag, which CORS does not apply to) and writes go out as
- * an opaque no-cors POST — the write still lands, we just cannot read the
- * reply, so we re-read afterwards and check the Sheet actually changed.
+ * Everything goes over JSONP — a <script> tag, which is the one request type
+ * Apps Script serves reliably from another domain. POST was the problem: its
+ * 302 lands on an echo URL that 404s, so the write appeared to hang forever.
+ * Reads and writes now use the same path, and every write hands back the full
+ * row list in the same reply, so one round trip does the whole job.
  * ---------------------------------------------------------------------- */
+
+const NEEDS_VERSION = 3;
 
 function bar(msg, bad){
   const b = $('#bar'); b.textContent = msg; b.className = 'on'+(bad?' bad':'');
@@ -175,74 +188,45 @@ function jsonp(params){
     const cb = '__spine_cb_' + (++jsonpN);
     const s = document.createElement('script');
     const done = () => { clearTimeout(timer); delete window[cb]; s.remove(); };
-    const timer = setTimeout(()=>{ done(); reject(new Error('The Sheet did not answer in time.')); }, 20000);
+    const timer = setTimeout(()=>{ done(); reject(new Error('The Sheet did not answer in time.')); }, 25000);
     window[cb] = data => { done(); resolve(data); };
-    s.onerror = () => { done(); reject(new Error(
-      'The URL did not return data. Usually this means the deployment is not set to "Anyone".')); };
+    s.onerror = () => { done(); reject(new Error('The script URL did not return anything.')); };
+
     const q = Object.entries({...params, callback:cb})
-      .map(([k,v])=>encodeURIComponent(k)+'='+encodeURIComponent(v)).join('&');
+      .map(([k,v])=>encodeURIComponent(k)+'='+encodeURIComponent(v==null?'':v)).join('&');
     s.src = URL_ + (URL_.includes('?')?'&':'?') + q;
+    if(s.src.length > 7500){ done(); reject(new Error('That text is too long to send in one go — shorten it a little.')); return; }
     document.body.appendChild(s);
   });
 }
 
+/* Writes return the refreshed rows, so there is nothing to re-read afterwards. */
+async function call(params){
+  const data = await jsonp(params);
+  if(!data || !data.ok) throw new Error((data && data.error) || 'The Sheet returned an error.');
+  if(data.rows) rows = data.rows;
+  if(data.v !== NEEDS_VERSION) setTimeout(()=>bar(
+    'Your Apps Script is version '+(data.v||1)+'; this page needs '+NEEDS_VERSION+'. Redeploy Code.gs.', true), 300);
+  return data;
+}
+
 async function pull(){
   if(!URL_) return;
-  let data;
-  try{
-    data = await jsonp({action:'list'});
-  }catch(e){
-    /* A deployment running the older Code.gs answers with JSON and no callback
-       wrapper, which a script tag cannot execute. If the browser will let us
-       read it directly, that path still works — so try it before giving up. */
-    try{
-      const res = await fetch(URL_ + (URL_.includes('?')?'&':'?') + 'action=list', {redirect:'follow'});
-      data = await res.json();
-    }catch(e2){
-      throw e;
-    }
-  }
-  if(!data || !data.ok) throw new Error((data && data.error) || 'The Sheet returned an error.');
-  rows = data.rows || [];
+  await call({action:'list'});
 }
 
-/* Fires the write. The response is opaque by design — pull() is what confirms it. */
-async function send(payload){
-  await fetch(URL_, {
-    method:'POST', mode:'no-cors',
-    headers:{'Content-Type':'text/plain;charset=utf-8'},
-    body: JSON.stringify(payload)
-  });
-}
-
-function landed(payload, before){
-  if(payload.action === 'add')    return rows.length === before + 1;
-  if(payload.action === 'delete') return !rows.some(r => r.id === payload.id);
-  const row = rows.find(r => r.id === payload.id);
-  return !!row && String(row[payload.field] || '') === String(payload.value || '');
-}
-
-async function write(payload, msg){
+async function write(params, msg){
   if(busy) return;
   busy = true; render();
-  const before = rows.length;
-  try{
-    await send(payload);
-    await new Promise(r=>setTimeout(r, 400));   // let the append settle
-    await pull();
-    bar(landed(payload, before) ? msg : 'The Sheet did not record that — try again', !landed(payload, before));
-  }catch(e){
-    bar('Could not reach the Sheet. '+e.message, true);
-  }
+  try{ await call(params); bar(msg); }
+  catch(e){ bar('Not saved — '+e.message, true); }
   busy = false; render();
 }
 
 async function refresh(){
   busy = true; render();
   try{ await pull(); }
-  catch(e){
-    bar('Could not read the Sheet. Open the Sheet button for a one-click check.', true);
-  }
+  catch(e){ bar('Could not read the Sheet. '+e.message, true); }
   busy = false; render();
 }
 
@@ -283,14 +267,14 @@ function render(){
       ${mode === 'review' ? reviewView(mine) : prepView(mine)}
     `}`;
 
-  $$('.chip',app).forEach(c=>c.onclick=()=>{ topic=c.dataset.t; expanded=null; adding=false; mode='prep'; render(); });
-  $$('.mbtn',app).forEach(b=>b.onclick=()=>{ mode=b.dataset.m; expanded=null; adding=false; render(); });
+  $$('.chip',app).forEach(c=>c.onclick=()=>{ topic=c.dataset.t; adding=false; mode='prep'; render(); });
+  $$('.mbtn',app).forEach(b=>b.onclick=()=>{ mode=b.dataset.m; adding=false; render(); });
   $('#refresh').onclick = refresh;
   $('#newTopic').onclick = () => {
     const name = prompt('Name this topic — the meeting, or the subject you need to speak to:');
     if(!name || !name.trim()) return;
     topic = name.trim(); render._pendingTopic = topic;
-    mode='prep'; adding = true; expanded = null; render();
+    mode='prep'; adding = true; render();
     setTimeout(()=>$('#nq')?.focus(), 0);
   };
 
@@ -299,73 +283,53 @@ function render(){
   wirePrep(app);
 }
 
-/* --------------------------------- prep --------------------------------- */
+/* --------------------------------- prep ---------------------------------
+ * Laid out like the Sheet it writes to: three columns across, points down.
+ * Cells are editable in place and save when you click away.
+ * ---------------------------------------------------------------------- */
 
 function prepView(mine){
   return `
-    <div class="list">
-      ${mine.map((r,i)=> r.id===expanded ? openRow(r,i) : shutRow(r,i)).join('')}
-    </div>
-    ${adding ? `
-      <div class="newpoint">
-        <div class="eyebrow pine">Point ${mine.length+1}</div>
-        <label class="lbl" style="margin-top:14px" for="nq">Question or topic</label>
-        <textarea class="fld" id="nq" rows="2" placeholder="What will they ask, or what do you need to raise?">${esc(draft.q)}</textarea>
-        <label class="lbl" for="nr">My response</label>
-        <textarea class="fld" id="nr" rows="3" placeholder="What you intend to say">${esc(draft.r)}</textarea>
-        <label class="lbl" for="nn">Numbers</label>
-        <textarea class="fld mono" id="nn" rows="2" placeholder="Any figures, and where they came from">${esc(draft.n)}</textarea>
-        <div style="margin-top:14px;display:flex;gap:10px">
-          <button class="btn solid" id="savePoint" ${busy?'disabled':''}>${busy?'Saving…':'Save to Sheet'}</button>
-          <button class="btn quiet" id="cancelAdd">Cancel</button>
-        </div>
-      </div>`
-    : `<button class="btn addbtn" id="addBtn">+ Add ${mine.length?'another ':''}point</button>`}`;
-}
-
-function shutRow(r,i){
-  return `<div class="row" data-open="${esc(r.id)}" tabindex="0" role="button">
-    <span class="idx">${i+1}</span>
-    <div class="rowbody">
-      <div class="rq">${esc(r.question) || '<span style="color:#B6BEB9">No question written</span>'}</div>
-      ${r.response ? `<div class="rr">${esc(r.response)}</div>` : ''}
-      ${r.numbers ? `<div class="rn">${esc(r.numbers)}</div>` : ''}
-    </div>
-    ${r.outcome ? `<span class="pip ${GOOD.includes(r.outcome)?'good':BAD.includes(r.outcome)?'bad':''}"
-      title="${esc(label(r.outcome))}"></span>` : ''}
-  </div>`;
-}
-
-function openRow(r,i){
-  const f = (field, cls, val, lbl) => `
-    <div class="grp">
-      <div class="lbl">${lbl}</div>
-      <textarea class="ed ${cls}" data-id="${esc(r.id)}" data-field="${field}"
-        data-was="${esc(val)}" rows="1" placeholder="—">${esc(val)}</textarea>
-    </div>`;
-  return `<div class="row open">
-    <span class="idx">${i+1}</span>
-    <div class="rowbody">
-      ${f('question','q',r.question,'Question or topic')}
-      ${f('response','',r.response,'My response')}
-      ${f('numbers','n',r.numbers,'Numbers')}
-      <div class="foot">
-        <button class="btn quiet" id="closeRow">Done</button>
-        <span class="spacer"></span>
-        <button class="btn quiet" data-del="${esc(r.id)}">Delete</button>
+    <div class="grid">
+      <div class="ghead">
+        <div>#</div><div>Question or topic</div><div>My response</div><div>Numbers</div><div></div>
       </div>
+      ${mine.map((r,i)=>`
+        <div class="grow">
+          <div class="idx">${i+1}${r.outcome?`<span class="pip ${GOOD.includes(r.outcome)?'good':BAD.includes(r.outcome)?'bad':''}" title="${esc(label(r.outcome))}"></span>`:''}</div>
+          ${cell(r,'question','Question or topic','q')}
+          ${cell(r,'response','My response','')}
+          ${cell(r,'numbers','Numbers','n')}
+          <button class="x" data-del="${esc(r.id)}" aria-label="Delete point ${i+1}">✕</button>
+        </div>`).join('')}
+
+      ${adding ? `
+        <div class="grow adding">
+          <div class="idx">${mine.length+1}</div>
+          <div class="cell" data-l="Question or topic">
+            <textarea class="ed q" id="nq" rows="1" placeholder="What will they ask, or what do you need to raise?">${esc(draft.q)}</textarea></div>
+          <div class="cell" data-l="My response">
+            <textarea class="ed" id="nr" rows="1" placeholder="What you intend to say">${esc(draft.r)}</textarea></div>
+          <div class="cell" data-l="Numbers">
+            <textarea class="ed n" id="nn" rows="1" placeholder="Figures, and where from">${esc(draft.n)}</textarea></div>
+          <span></span>
+        </div>
+        <div class="addfoot">
+          <button class="btn solid" id="savePoint" ${busy?'disabled':''}>${busy?'Saving…':'Save to Sheet'}</button>
+          <button class="btn quiet" id="cancelAdd">Done adding</button>
+        </div>` : ''}
     </div>
+    ${adding ? '' : `<button class="btn addbtn" id="addBtn">+ Add ${mine.length?'another ':''}point</button>`}`;
+}
+
+function cell(r, field, lbl, cls){
+  return `<div class="cell" data-l="${lbl}">
+    <textarea class="ed ${cls}" data-id="${esc(r.id)}" data-field="${field}"
+      data-was="${esc(r[field])}" rows="1" placeholder="—">${esc(r[field])}</textarea>
   </div>`;
 }
 
 function wirePrep(app){
-  $$('[data-open]',app).forEach(el=>{
-    const open = () => { expanded = el.dataset.open; adding = false; render(); };
-    el.onclick = open;
-    el.onkeydown = e => { if(e.key==='Enter'||e.key===' '){ e.preventDefault(); open(); } };
-  });
-  if($('#closeRow')) $('#closeRow').onclick = () => { expanded = null; render(); };
-
   $$('.ed[data-id]',app).forEach(el=>{
     autosize(el);
     el.oninput = () => autosize(el);
@@ -378,19 +342,19 @@ function wirePrep(app){
   });
 
   $$('[data-del]',app).forEach(b=>b.onclick = () => {
-    if(confirm('Delete this point from the Sheet?')){ expanded = null; write({action:'delete', id:b.dataset.del}, 'Deleted'); }
+    if(confirm('Delete this point from the Sheet?')) write({action:'delete', id:b.dataset.del}, 'Deleted');
   });
 
-  if($('#addBtn')) $('#addBtn').onclick = () => {
-    adding = true; expanded = null; render(); setTimeout(()=>$('#nq')?.focus(),0);
-  };
-  if($('#cancelAdd')) $('#cancelAdd').onclick = () => {
-    adding = false; draft = {q:'',r:'',n:''}; render();
-  };
+  if($('#addBtn')) $('#addBtn').onclick = () => { adding = true; render(); setTimeout(()=>$('#nq')?.focus(),0); };
+  if($('#cancelAdd')) $('#cancelAdd').onclick = () => { adding = false; draft = {q:'',r:'',n:''}; render(); };
 
   /* the draft is held in memory so a failed save never loses what you typed */
-  const keep = (id,k) => { const el = $('#'+id); if(el) el.oninput = () => draft[k] = el.value; };
-  keep('nq','q'); keep('nr','r'); keep('nn','n');
+  ['nq','nr','nn'].forEach((id,i)=>{
+    const el = $('#'+id); if(!el) return;
+    const k = ['q','r','n'][i];
+    autosize(el);
+    el.oninput = () => { draft[k] = el.value; autosize(el); };
+  });
 
   if($('#savePoint')) $('#savePoint').onclick = async () => {
     const q = $('#nq').value.trim(), r = $('#nr').value.trim(), n = $('#nn').value.trim();
@@ -398,8 +362,11 @@ function wirePrep(app){
     draft = {q,r,n};
     render._pendingTopic = topic;
     const before = rows.length;
-    await write({action:'add', topic, question:q, response:r, numbers:n}, 'Saved — add another if you need');
-    if(rows.length > before){ draft = {q:'',r:'',n:''}; adding = false; render(); }
+    await write({action:'add', topic, question:q, response:r, numbers:n}, 'Saved — the next row is ready');
+    if(rows.length > before){
+      draft = {q:'',r:'',n:''};   /* stays open, empty, for the next point */
+      render(); setTimeout(()=>$('#nq')?.focus(),0);
+    }
   };
 }
 
@@ -529,3 +496,4 @@ if(URL_) refresh();
 </script>
 </body>
 </html>
+             
