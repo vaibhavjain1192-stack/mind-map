@@ -97,6 +97,15 @@ header{display:flex;align-items:baseline;gap:8px;margin-bottom:26px}
 .x:hover{color:var(--warn)}
 .addbtn{width:100%;padding:13px;border-style:dashed;color:var(--pine);font-weight:500}
 
+/* the standing brief — marked out from the points by the highlighter edge */
+.brief{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--mark);
+  border-radius:4px 12px 12px 4px;padding:13px 16px 14px;margin-bottom:20px}
+.briefhead{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.brieftext{font:400 14px/1.65 var(--sans);min-height:24px}
+.briefshut{width:100%;padding:11px;margin-bottom:20px;border-style:dashed;
+  color:var(--mute);font-weight:500;text-align:left}
+.briefshut:hover{color:var(--pine)}
+
 .ed{width:100%;border:none;background:transparent;outline:none;color:var(--ink);padding:2px 0;
   font:400 14px/1.55 var(--sans);resize:none;overflow:hidden}
 .ed.q{font-weight:700}
@@ -163,6 +172,11 @@ header{display:flex;align-items:baseline;gap:8px;margin-bottom:26px}
   .tmeta{font-size:12.5px}
 
   /* ---- points: shut rows stay one line tall ----------------------- */
+  .brief{padding:13px 14px 14px;margin-bottom:16px}
+  .briefhead{margin-bottom:7px}
+  .brieftext{font-size:16px;line-height:1.6}
+  .briefshut{padding:13px 14px;min-height:46px;margin-bottom:16px;font-size:13.5px}
+
   .prow{padding:13px 14px;border-radius:13px;gap:10px}
   .pq{font-size:14.5px;-webkit-line-clamp:3}
   .prow.open{padding:14px 15px 12px}
@@ -270,6 +284,8 @@ let mode = 'prep';      // prep | review
 let adding = false;
 let expanded = null;    // id of the point currently open
 let naming = false;     // inline "name this topic" field is open
+let briefs = {};        // topic name -> its standing brief
+let briefOpen = true;
 let draft = {q:'',r:'',n:''};
 
 /* ------------------------------- transport ------------------------------
@@ -280,7 +296,7 @@ let draft = {q:'',r:'',n:''};
  * row list in the same reply, so one round trip does the whole job.
  * ---------------------------------------------------------------------- */
 
-const NEEDS_VERSION = 3;
+const NEEDS_VERSION = 4;
 
 function bar(msg, bad){
   const b = $('#bar'); b.textContent = msg; b.className = 'on'+(bad?' bad':'');
@@ -310,6 +326,7 @@ async function call(params){
   const data = await jsonp(params);
   if(!data || !data.ok) throw new Error((data && data.error) || 'The Sheet returned an error.');
   if(data.rows) rows = data.rows;
+  if(data.topics) briefs = Object.fromEntries(data.topics.map(t=>[t.topic, t.brief || '']));
   if(data.v !== NEEDS_VERSION) setTimeout(()=>bar(
     'Your Apps Script is version '+(data.v||1)+'; this page needs '+NEEDS_VERSION+'. Redeploy Code.gs.', true), 300);
   return data;
@@ -344,7 +361,7 @@ function render(){
   const app = $('#app');
   if(!URL_ || showSetup) return renderSetup(app);
 
-  const topics = [...new Set(rows.map(r=>r.topic).filter(Boolean))];
+  const topics = [...new Set([...rows.map(r=>r.topic), ...Object.keys(briefs)].filter(Boolean))];
   if(render._pendingTopic){
     if(topics.includes(render._pendingTopic)) render._pendingTopic = null;
     else topics.push(render._pendingTopic);
@@ -387,7 +404,8 @@ function renderHome(app, topics){
               <div class="tname">${esc(t)}</div>
               <div class="tmeta">${pts.length} point${pts.length===1?'':'s'}${
                 done ? ` · ${done} reviewed` : ''}${
-                bad ? ` · <span class="flag">${bad} to fix</span>` : ''}</div>
+                bad ? ` · <span class="flag">${bad} to fix</span>` : ''}${
+                (briefs[t]||'').trim() ? ' · brief' : ''}</div>
             </div>
             <span class="chev">›</span>
           </button>`;
@@ -432,7 +450,9 @@ function renderTopic(app, mine){
     </div>
 
     <h1>${esc(topic)}</h1>
-    <p class="hint" style="margin-bottom:18px">${mine.length} point${mine.length===1?'':'s'}</p>
+    <p class="hint" style="margin-bottom:16px">${mine.length} point${mine.length===1?'':'s'}</p>
+
+    ${briefBlock()}
 
     ${mine.length ? `<div class="modes">
       <button class="mbtn ${mode==='prep'?'on':''}" data-m="prep">Prepare</button>
@@ -441,12 +461,55 @@ function renderTopic(app, mine){
 
     ${mode === 'review' ? reviewView(mine) : prepView(mine)}`;
 
+  wireBrief();
   $('#back').onclick = () => { topic = null; expanded = null; adding = false; render(); window.scrollTo(0,0); };
   $('#refresh').onclick = refresh;
   $$('.mbtn',app).forEach(b=>b.onclick=()=>{ mode=b.dataset.m; adding=false; expanded=null; render(); });
 
   if(mode === 'review') return wireReview(app);
   wirePrep(app);
+}
+
+/* -------------------------------- brief ---------------------------------
+ * Standing context for the whole topic: how the process works, who owns what,
+ * the numbers you would reach for. This is what you reason from when a
+ * question arrives that is not on the list.
+ * ---------------------------------------------------------------------- */
+
+function briefBlock(){
+  const text = briefs[topic] || '';
+  if(!briefOpen){
+    return `<button class="btn briefshut" id="briefShow">
+      ${text ? 'Show the brief' : '+ Add a brief for this topic'}</button>`;
+  }
+  return `<div class="brief">
+    <div class="briefhead">
+      <span class="eyebrow pine">Brief</span>
+      <span class="spacer"></span>
+      <button class="btn quiet" id="briefHide">Hide</button>
+    </div>
+    <textarea class="ed brieftext" id="brieftext" rows="2"
+      data-was="${esc(text)}"
+      placeholder="How the process works, who owns what, the background you would need to answer something you did not prepare for.">${esc(text)}</textarea>
+  </div>`;
+}
+
+function wireBrief(){
+  if($('#briefShow')) $('#briefShow').onclick = () => {
+    briefOpen = true; render(); setTimeout(()=>$('#brieftext')?.focus(),0);
+  };
+  if($('#briefHide')) $('#briefHide').onclick = () => { briefOpen = false; render(); };
+  const el = $('#brieftext');
+  if(!el) return;
+  autosize(el);
+  el.oninput = () => autosize(el);
+  el.onblur = () => {
+    const val = el.value.trim();
+    if(val === el.dataset.was) return;
+    el.dataset.was = val;
+    briefs[topic] = val;
+    write({action:'brief', topic, value:val}, 'Brief saved');
+  };
 }
 
 /* --------------------------------- prep ---------------------------------
