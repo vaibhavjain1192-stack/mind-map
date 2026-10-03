@@ -106,6 +106,20 @@ header{display:flex;align-items:baseline;gap:8px;margin-bottom:26px}
   color:var(--mute);font-weight:500;text-align:left}
 .briefshut:hover{color:var(--pine)}
 
+/* the note you write after the meeting */
+.note{margin-top:12px;padding:11px 13px;border-radius:9px;background:var(--paper);
+  border:1px solid var(--line);border-left:3px solid var(--line)}
+.note.good{border-left-color:var(--pine);background:rgba(44,106,87,.05)}
+.note.bad{border-left-color:var(--warn);background:rgba(180,67,43,.04)}
+.note .lbl{margin-bottom:5px}
+.notetext{font:400 13.5px/1.6 var(--sans);min-height:22px}
+.notetext::placeholder{color:#AEB7B2}
+
+/* and the same note, read back while preparing next time */
+.lastnote{margin-top:13px;padding-top:11px;border-top:1px solid var(--line);display:flex;gap:10px}
+.lastnote .lbl{margin:0;flex-shrink:0;padding-top:2px}
+.lastnote p{margin:0;font:400 13px/1.6 var(--sans);color:var(--mute)}
+
 .ed{width:100%;border:none;background:transparent;outline:none;color:var(--ink);padding:2px 0;
   font:400 14px/1.55 var(--sans);resize:none;overflow:hidden}
 .ed.q{font-weight:700}
@@ -172,6 +186,11 @@ header{display:flex;align-items:baseline;gap:8px;margin-bottom:26px}
   .tmeta{font-size:12.5px}
 
   /* ---- points: shut rows stay one line tall ----------------------- */
+  .note{padding:11px 12px;margin-top:11px}
+  .notetext{font-size:16px;line-height:1.55}
+  .lastnote{flex-direction:column;gap:5px}
+  .lastnote p{font-size:13.5px}
+
   .brief{padding:13px 14px 14px;margin-bottom:16px}
   .briefhead{margin-bottom:7px}
   .brieftext{font-size:16px;line-height:1.6}
@@ -270,6 +289,15 @@ const OUTCOMES = [
   ['nochance','Never came up'],
 ];
 const GOOD = ['covered'], BAD = ['missed','muddled'];
+const WORTH_A_NOTE = ['covered','missed','muddled'];
+
+/* what to ask for depends on how it went */
+const NOTE_ASK = {
+  covered: 'What worked? The phrasing, the order, the number you led with — whatever you would repeat.',
+  missed:  'Why did it slip? Ran out of time, forgot it, never found the opening?',
+  muddled: 'Where did it lose them? Which part did you have to say twice?'
+};
+const NOTE_LABEL = { covered:'What worked', missed:'Why it slipped', muddled:'Where it lost them' };
 
 const $  = (s,r=document)=>r.querySelector(s);
 const $$ = (s,r=document)=>[...r.querySelectorAll(s)];
@@ -296,7 +324,7 @@ let draft = {q:'',r:'',n:''};
  * row list in the same reply, so one round trip does the whole job.
  * ---------------------------------------------------------------------- */
 
-const NEEDS_VERSION = 4;
+const NEEDS_VERSION = 5;
 
 function bar(msg, bad){
   const b = $('#bar'); b.textContent = msg; b.className = 'on'+(bad?' bad':'');
@@ -566,6 +594,11 @@ function openPoint(r,i){
       ${cell(r,'response','My response','')}
       ${cell(r,'numbers','Numbers','n')}
     </div>
+    ${(r.feedback||'').trim() ? `
+      <div class="lastnote">
+        <span class="lbl">${NOTE_LABEL[r.outcome] || 'Last time'}</span>
+        <p>${esc(r.feedback)}</p>
+      </div>` : ''}
     <div class="pfoot"><button class="btn quiet" id="closePoint">Close</button></div>
   </div>`;
 }
@@ -648,6 +681,13 @@ function reviewView(mine){
               <button class="opt ${r.outcome===v?'on '+(GOOD.includes(v)?'good':BAD.includes(v)?'bad':'grey'):''}"
                 data-id="${esc(r.id)}" data-v="${v}" ${busy?'disabled':''}>${esc(l)}</button>`).join('')}
           </div>
+          ${WORTH_A_NOTE.includes(r.outcome) ? `
+            <div class="note ${GOOD.includes(r.outcome)?'good':'bad'}">
+              <div class="lbl">${NOTE_LABEL[r.outcome]}</div>
+              <textarea class="ed notetext" data-id="${esc(r.id)}" data-field="feedback"
+                data-was="${esc(r.feedback||'')}" rows="1"
+                placeholder="${esc(NOTE_ASK[r.outcome])}">${esc(r.feedback||'')}</textarea>
+            </div>` : ''}
         </div>`).join('')}
     </div>
 
@@ -676,6 +716,17 @@ function verdict(good, missed, muddled, none, done){
 }
 
 function wireReview(app){
+  $$('.notetext',app).forEach(el=>{
+    autosize(el);
+    el.oninput = () => autosize(el);
+    el.onblur = () => {
+      const val = el.value.trim();
+      if(val === el.dataset.was) return;
+      el.dataset.was = val;
+      write({action:'update', id:el.dataset.id, field:'feedback', value:val}, 'Note saved');
+    };
+  });
+
   $$('.opt',app).forEach(b=>b.onclick = () => {
     const row = rows.find(r=>r.id===b.dataset.id);
     const value = (row && row.outcome === b.dataset.v) ? '' : b.dataset.v;  // tap again to clear
